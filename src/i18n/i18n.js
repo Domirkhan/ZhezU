@@ -455,7 +455,7 @@ const resources = {
 
       // Home Page
       welcome: 'Welcome!',
-      heroTitle: 'Talqapker ZhezU - Your Academic Partner',
+      heroTitle: 'Talapker ZhezU - Your Academic Partner',
       heroSubtitle: 'Get career guidance, take tests, and receive personalized consultations for ZhezU admission',
       startTest: 'Start Test',
       chatWithAI: 'Chat with AI',
@@ -476,7 +476,7 @@ const resources = {
       benefit6: '24/7 AI consultant support',
       homeFeaturesTitle: 'Our Features',
       homeFeaturesDesc: 'Comprehensive support for successful admission to ZhezU',
-      homeWhyTitle: 'Why Choose Talqapker ZhezU?',
+      homeWhyTitle: 'Why Choose Talapker ZhezU?',
       homeWhyDesc: 'Our platform provides all the necessary tools for successful admission to ZhezU.',
       homeCtaTitle: 'Ready to start your journey at ZhezU?',
       homeCtaDesc: 'Take the career orientation test and get personalized recommendations for choosing a specialty today.',
@@ -538,7 +538,7 @@ const resources = {
       forgotPassword: 'Forgot password?',
 
       // Footer
-      footerBrand: 'Talqapker ZhezU',
+      footerBrand: 'Talapker ZhezU',
       footerDesc: 'Intelligent AI agent for career guidance and consultations for applicants of ZhezU.',
       footerContacts: 'Contacts',
       footerAddress: '187A Zhansugurov St., Taldykorgan',
@@ -549,7 +549,7 @@ const resources = {
       footerLinkAdmission: 'Admission Office',
       footerLinkGrants: 'Grants and Scholarships',
       footerLinkNews: 'University News',
-      footerCopyright: '© 2024 Talqapker ZhezU. All rights reserved.',
+      footerCopyright: '© 2024 Talapker ZhezU. All rights reserved.',
       footerMadeFor: 'Made for ZhezU applicants',
 
       // Test instructions and questions

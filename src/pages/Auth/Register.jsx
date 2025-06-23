@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { Mail, Lock, User, Phone, Eye, EyeOff, MessageSquare } from 'lucide-react';
+import logo from '../../../public/logo.png';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -91,7 +92,6 @@ const Register = () => {
 
   const handlePhoneVerification = async (e) => {
     e.preventDefault();
-    
     if (!verificationCode || verificationCode.length !== 6) {
       setErrors({ verification: 'Введите 6-значный код подтверждения' });
       return;
@@ -115,7 +115,7 @@ const Register = () => {
       } else {
         setErrors({ verification: data.message });
       }
-    } catch (error) {
+    } catch {
       setErrors({ verification: 'Ошибка при подтверждении номера' });
     }
   };
@@ -151,9 +151,9 @@ const Register = () => {
             <div className="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
               <MessageSquare className="text-white" size={24} />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Подтверждение номера</h2>
+            <h2 className="text-3xl font-bold text-gray-900">{t('registerSMS')}</h2>
             <p className="mt-2 text-gray-600">
-              Мы отправили SMS с кодом подтверждения на номер<br />
+              {t('registerSMSDesc')}<br />
               <strong>{formData.phoneNumber}</strong>
             </p>
           </div>
@@ -167,7 +167,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-1">
-                Код подтверждения
+                {t('registerSMSCode')}
               </label>
               <input
                 id="verificationCode"
@@ -181,7 +181,7 @@ const Register = () => {
                 autoComplete="one-time-code"
               />
               <p className="text-sm text-gray-500 mt-2">
-                Введите 6-значный код из SMS
+                {t('registerSMSCodeDesc')}
               </p>
             </div>
 
@@ -190,7 +190,7 @@ const Register = () => {
               disabled={loading || verificationCode.length !== 6}
               className="w-full btn-primary py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Проверка...' : 'Подтвердить номер'}
+              {loading ? t('loading') : t('registerSMSBtn')}
             </button>
 
             <div className="text-center">
@@ -202,7 +202,7 @@ const Register = () => {
                   console.log('Resending SMS...');
                 }}
               >
-                Отправить код повторно
+                {t('registerSMSResend')}
               </button>
             </div>
           </form>
@@ -215,12 +215,12 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">T</span>
+          <div className="w-16 h-16  flex items-center justify-center mx-auto mb-4">
+            <img src={logo} alt="logo" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900">{t('register')}</h2>
           <p className="mt-2 text-gray-600">
-            Создайте аккаунт для подачи заявки на поступление в ЖеЗУ
+            {t('registerSubtitle')}
           </p>
         </div>
 
@@ -380,13 +380,10 @@ const Register = () => {
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-blue-800">
-                  Подтверждение по SMS
+                  {t('registerSMS')}
                 </h3>
                 <div className="mt-2 text-sm text-blue-700">
-                  <p>
-                    После регистрации на ваш номер телефона будет отправлен код подтверждения.
-                    Это необходимо для безопасности вашего аккаунта.
-                  </p>
+                  <p>{t('registerSMSDesc')}</p>
                 </div>
               </div>
             </div>

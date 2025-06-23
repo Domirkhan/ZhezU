@@ -42,11 +42,11 @@ const ApplicationForm = () => {
     entResults: {
       totalScore: '',
       subjects: [
-        { name: 'Казахский/Русский язык', score: '' },
-        { name: 'История Казахстана', score: '' },
-        { name: 'Математическая грамотность', score: '' },
-        { name: 'Профильный предмет 1', score: '' },
-        { name: 'Профильный предмет 2', score: '' }
+        { name: t('entSubjectLang'), score: '' },
+        { name: t('entSubjectHistory'), score: '' },
+        { name: t('entSubjectMath'), score: '' },
+        { name: t('entSubjectProfile1'), score: '' },
+        { name: t('entSubjectProfile2'), score: '' }
       ]
     },
     // Documents
@@ -75,10 +75,10 @@ const ApplicationForm = () => {
   };
 
   const steps = [
-    { id: 1, name: 'Личные данные', icon: User },
-    { id: 2, name: 'Специальности', icon: GraduationCap },
-    { id: 3, name: 'Результаты ЕНТ', icon: Star },
-    { id: 4, name: 'Документы', icon: FileText }
+    { id: 1, name: t('applicationStepPersonal'), icon: User },
+    { id: 2, name: t('applicationStepSpecialities'), icon: GraduationCap },
+    { id: 3, name: t('applicationStepEnt'), icon: Star },
+    { id: 4, name: t('applicationStepDocuments'), icon: FileText }
   ];
 
   const handleInputChange = (section, field, value) => {
@@ -129,7 +129,7 @@ const ApplicationForm = () => {
         }
       }));
     } else {
-      alert('Файл слишком большой. Максимальный размер: 10MB');
+      alert(t('fileTooLarge'));
     }
   };
 
@@ -154,37 +154,37 @@ const ApplicationForm = () => {
 
     switch (step) {
       case 1:
-        if (!formData.personalInfo.iin) newErrors.iin = 'ИИН обязателен';
-        if (!formData.personalInfo.birthDate) newErrors.birthDate = 'Дата рождения обязательна';
-        if (!formData.personalInfo.gender) newErrors.gender = 'Пол обязателен';
-        if (!formData.personalInfo.nationality) newErrors.nationality = 'Национальность обязательна';
-        if (!formData.personalInfo.address) newErrors.address = 'Адрес обязателен';
-        if (!formData.personalInfo.parentName) newErrors.parentName = 'ФИО родителя обязательно';
-        if (!formData.personalInfo.parentPhone) newErrors.parentPhone = 'Телефон родителя обязателен';
+        if (!formData.personalInfo.iin) newErrors.iin = t('iinRequired');
+        if (!formData.personalInfo.birthDate) newErrors.birthDate = t('birthDateRequired');
+        if (!formData.personalInfo.gender) newErrors.gender = t('genderRequired');
+        if (!formData.personalInfo.nationality) newErrors.nationality = t('nationalityRequired');
+        if (!formData.personalInfo.address) newErrors.address = t('addressRequired');
+        if (!formData.personalInfo.parentName) newErrors.parentName = t('parentNameRequired');
+        if (!formData.personalInfo.parentPhone) newErrors.parentPhone = t('parentPhoneRequired');
         break;
       
       case 2:
         if (formData.specialities.length === 0) {
-          newErrors.specialities = 'Выберите хотя бы одну специальность';
+          newErrors.specialities = t('specialityRequired');
         }
         break;
       
       case 3:
         if (!formData.entResults.totalScore) {
-          newErrors.totalScore = 'Общий балл ЕНТ обязателен';
+          newErrors.totalScore = t('entTotalScoreRequired');
         }
         formData.entResults.subjects.forEach((subject, index) => {
           if (!subject.score) {
-            newErrors[`subject_${index}`] = `Балл по предмету "${subject.name}" обязателен`;
+            newErrors[`subject_${index}`] = t('entSubjectScoreRequired', { subject: subject.name });
           }
         });
         break;
       
       case 4:
-        if (!uploadedFiles.passport) newErrors.passport = 'Скан паспорта обязателен';
-        if (!uploadedFiles.diploma) newErrors.diploma = 'Скан аттестата обязателен';
-        if (!uploadedFiles.photo) newErrors.photo = 'Фотография обязательна';
-        if (!uploadedFiles.medical) newErrors.medical = 'Медицинская справка обязательна';
+        if (!uploadedFiles.passport) newErrors.passport = t('passportRequired');
+        if (!uploadedFiles.diploma) newErrors.diploma = t('diplomaRequired');
+        if (!uploadedFiles.photo) newErrors.photo = t('photoRequired');
+        if (!uploadedFiles.medical) newErrors.medical = t('medicalRequired');
         break;
     }
 
@@ -256,7 +256,7 @@ const ApplicationForm = () => {
                 {title} {required && <span className="text-red-500">*</span>}
               </span>
               <span className="mt-1 block text-xs text-gray-500">
-                PDF, JPG, PNG, DOC, DOCX до 10MB
+                {t('fileFormatsDescription')}
               </span>
             </label>
             <input
@@ -287,7 +287,7 @@ const ApplicationForm = () => {
               className="mt-4 btn-primary"
               onClick={() => document.getElementById(documentType).click()}
             >
-              Выбрать файл
+              {t('chooseFile')}
             </button>
           )}
         </div>
@@ -305,10 +305,10 @@ const ApplicationForm = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Заявка на поступление в ЖеЗУ
+            {t('applicationTitle')}
           </h1>
           <p className="text-gray-600">
-            Заполните все необходимые данные для подачи заявки
+            {t('applicationSubtitle')}
           </p>
         </div>
 
@@ -353,13 +353,13 @@ const ApplicationForm = () => {
           {currentStep === 1 && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Личная информация
+                {t('personalInfo')}
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    ИИН *
+                    {t('iin')} *
                   </label>
                   <input
                     type="text"
@@ -367,14 +367,14 @@ const ApplicationForm = () => {
                     value={formData.personalInfo.iin}
                     onChange={(e) => handleInputChange('personalInfo', 'iin', e.target.value)}
                     className={`input-field ${errors.iin ? 'border-red-300' : ''}`}
-                    placeholder="123456789012"
+                    placeholder={t('iinPlaceholder')}
                   />
                   {errors.iin && <p className="text-red-600 text-sm mt-1">{errors.iin}</p>}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Дата рождения *
+                    {t('birthDate')} *
                   </label>
                   <input
                     type="date"
@@ -387,72 +387,72 @@ const ApplicationForm = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Пол *
+                    {t('gender')} *
                   </label>
                   <select
                     value={formData.personalInfo.gender}
                     onChange={(e) => handleInputChange('personalInfo', 'gender', e.target.value)}
                     className={`input-field ${errors.gender ? 'border-red-300' : ''}`}
                   >
-                    <option value="">Выберите пол</option>
-                    <option value="male">Мужской</option>
-                    <option value="female">Женский</option>
+                    <option value="">{t('genderSelect')}</option>
+                    <option value="male">{t('male')}</option>
+                    <option value="female">{t('female')}</option>
                   </select>
                   {errors.gender && <p className="text-red-600 text-sm mt-1">{errors.gender}</p>}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Национальность *
+                    {t('nationality')} *
                   </label>
                   <input
                     type="text"
                     value={formData.personalInfo.nationality}
                     onChange={(e) => handleInputChange('personalInfo', 'nationality', e.target.value)}
                     className={`input-field ${errors.nationality ? 'border-red-300' : ''}`}
-                    placeholder="Казах"
+                    placeholder={t('nationalityPlaceholder')}
                   />
                   {errors.nationality && <p className="text-red-600 text-sm mt-1">{errors.nationality}</p>}
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Адрес проживания *
+                    {t('address')} *
                   </label>
                   <textarea
                     value={formData.personalInfo.address}
                     onChange={(e) => handleInputChange('personalInfo', 'address', e.target.value)}
                     className={`input-field ${errors.address ? 'border-red-300' : ''}`}
                     rows="3"
-                    placeholder="Полный адрес проживания"
+                    placeholder={t('addressPlaceholder')}
                   />
                   {errors.address && <p className="text-red-600 text-sm mt-1">{errors.address}</p>}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    ФИО родителя/опекуна *
+                    {t('parentName')} *
                   </label>
                   <input
                     type="text"
                     value={formData.personalInfo.parentName}
                     onChange={(e) => handleInputChange('personalInfo', 'parentName', e.target.value)}
                     className={`input-field ${errors.parentName ? 'border-red-300' : ''}`}
-                    placeholder="Иванов Иван Иванович"
+                    placeholder={t('parentNamePlaceholder')}
                   />
                   {errors.parentName && <p className="text-red-600 text-sm mt-1">{errors.parentName}</p>}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Телефон родителя/опекуна *
+                    {t('parentPhone')} *
                   </label>
                   <input
                     type="tel"
                     value={formData.personalInfo.parentPhone}
                     onChange={(e) => handleInputChange('personalInfo', 'parentPhone', e.target.value)}
                     className={`input-field ${errors.parentPhone ? 'border-red-300' : ''}`}
-                    placeholder="+7 777 123 4567"
+                    placeholder={t('parentPhonePlaceholder')}
                   />
                   {errors.parentPhone && <p className="text-red-600 text-sm mt-1">{errors.parentPhone}</p>}
                 </div>
@@ -465,10 +465,10 @@ const ApplicationForm = () => {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Выбор специальностей
+                  {t('specialitiesSelection')}
                 </h2>
                 <span className="text-sm text-gray-600">
-                  Выбрано: {formData.specialities.length}/3
+                  {t('specialitiesSelected', { count: formData.specialities.length })}
                 </span>
               </div>
 
@@ -502,7 +502,7 @@ const ApplicationForm = () => {
                         <h3 className="font-medium text-gray-900">{speciality.name}</h3>
                         {isSelected && (
                           <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
-                            #{priority}
+                            {t('priorityNumber', { number: priority })}
                           </span>
                         )}
                       </div>
@@ -510,10 +510,10 @@ const ApplicationForm = () => {
                       <p className="text-sm text-gray-600 mb-3">{speciality.faculty}</p>
                       
                       <div className="space-y-1 text-xs text-gray-500">
-                        <div>Степень: {speciality.degree}</div>
-                        <div>Срок: {speciality.duration} лет</div>
-                        <div>Гранты: {speciality.grantPlaces}</div>
-                        <div>Платные: {speciality.paidPlaces}</div>
+                        <div>{t('degree')}: {speciality.degree}</div>
+                        <div>{t('duration')}: {speciality.duration} {t('years')}</div>
+                        <div>{t('grants')}: {speciality.grantPlaces}</div>
+                        <div>{t('paidPlaces')}: {speciality.paidPlaces}</div>
                       </div>
                     </div>
                   );
@@ -522,7 +522,7 @@ const ApplicationForm = () => {
 
               {formData.specialities.length > 0 && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-900 mb-2">Выбранные специальности:</h4>
+                  <h4 className="font-medium text-blue-900 mb-2">{t('selectedSpecialities')}</h4>
                   <div className="space-y-2">
                     {formData.specialities
                       .sort((a, b) => a.priority - b.priority)
@@ -552,13 +552,13 @@ const ApplicationForm = () => {
           {currentStep === 3 && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Результаты ЕНТ
+                {t('entResults')}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Общий балл ЕНТ *
+                    {t('entTotalScore')} *
                   </label>
                   <input
                     type="number"
@@ -567,7 +567,7 @@ const ApplicationForm = () => {
                     value={formData.entResults.totalScore}
                     onChange={(e) => handleInputChange('entResults', 'totalScore', e.target.value)}
                     className={`input-field ${errors.totalScore ? 'border-red-300' : ''}`}
-                    placeholder="120"
+                    placeholder={t('entTotalScorePlaceholder')}
                   />
                   {errors.totalScore && <p className="text-red-600 text-sm mt-1">{errors.totalScore}</p>}
                 </div>
@@ -594,7 +594,7 @@ const ApplicationForm = () => {
                         }));
                       }}
                       className={`input-field ${errors[`subject_${index}`] ? 'border-red-300' : ''}`}
-                      placeholder="20"
+                      placeholder={t('entSubjectScorePlaceholder')}
                     />
                     {errors[`subject_${index}`] && (
                       <p className="text-red-600 text-sm mt-1">{errors[`subject_${index}`]}</p>
@@ -608,14 +608,14 @@ const ApplicationForm = () => {
                   <AlertCircle className="h-5 w-5 text-yellow-400" />
                   <div className="ml-3">
                     <h3 className="text-sm font-medium text-yellow-800">
-                      Важная информация
+                      {t('importantInfo')}
                     </h3>
                     <div className="mt-2 text-sm text-yellow-700">
                       <ul className="list-disc list-inside space-y-1">
-                        <li>Минимальный порог для поступления: 50 баллов</li>
-                        <li>Максимальный балл по каждому предмету: 25</li>
-                        <li>Общий максимальный балл: 140</li>
-                        <li>Убедитесь в правильности введенных данных</li>
+                        <li>{t('entMinScoreInfo')}</li>
+                        <li>{t('entMaxSubjectScoreInfo')}</li>
+                        <li>{t('entMaxTotalScoreInfo')}</li>
+                        <li>{t('entCheckDataInfo')}</li>
                       </ul>
                     </div>
                   </div>
@@ -628,44 +628,44 @@ const ApplicationForm = () => {
           {currentStep === 4 && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Загрузка документов
+                {t('documentsUpload')}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FileUploadComponent
                   documentType="passport"
-                  title="Скан паспорта"
+                  title={t('passportScan')}
                   required={true}
                 />
 
                 <FileUploadComponent
                   documentType="diploma"
-                  title="Скан аттестата"
+                  title={t('diplomaScan')}
                   required={true}
                 />
 
                 <FileUploadComponent
                   documentType="photo"
-                  title="Фотография 3x4"
+                  title={t('photo3x4')}
                   required={true}
                   accept=".jpg,.jpeg,.png"
                 />
 
                 <FileUploadComponent
                   documentType="medical"
-                  title="Медицинская справка"
+                  title={t('medicalCertificate')}
                   required={true}
                 />
               </div>
 
               <div className="border-t pt-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Дополнительные документы (необязательно)
+                  {t('additionalDocumentsTitle')}
                 </h3>
                 
                 <FileUploadComponent
                   documentType="additional"
-                  title="Дополнительные документы"
+                  title={t('additionalDocuments')}
                   required={false}
                 />
               </div>
@@ -675,14 +675,14 @@ const ApplicationForm = () => {
                   <Check className="h-5 w-5 text-green-400" />
                   <div className="ml-3">
                     <h3 className="text-sm font-medium text-green-800">
-                      Требования к документам
+                      {t('documentsRequirementsTitle')}
                     </h3>
                     <div className="mt-2 text-sm text-green-700">
                       <ul className="list-disc list-inside space-y-1">
-                        <li>Все документы должны быть четкими и читаемыми</li>
-                        <li>Поддерживаемые форматы: PDF, JPG, PNG, DOC, DOCX</li>
-                        <li>Максимальный размер файла: 10MB</li>
-                        <li>Фотография должна соответствовать требованиям для документов</li>
+                        <li>{t('documentsClearReadable')}</li>
+                        <li>{t('documentsSupportedFormats')}</li>
+                        <li>{t('documentsMaxSize')}</li>
+                        <li>{t('documentsPhotoRequirements')}</li>
                       </ul>
                     </div>
                   </div>
@@ -698,12 +698,12 @@ const ApplicationForm = () => {
               disabled={currentStep === 1}
               className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Назад
+              {t('back')}
             </button>
 
             {currentStep < 4 ? (
               <button onClick={handleNext} className="btn-primary">
-                Далее
+                {t('next')}
               </button>
             ) : (
               <button
@@ -711,7 +711,7 @@ const ApplicationForm = () => {
                 disabled={loading}
                 className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Отправка...' : 'Подать заявку'}
+                {loading ? t('sending') : t('submit')}
               </button>
             )}
           </div>

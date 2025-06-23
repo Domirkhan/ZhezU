@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Phone } from 'lucide-react';
-
+import logo from '../../../public/logo.png';
 const Login = () => {
   const [formData, setFormData] = useState({
     login: '', // Can be email or phone
@@ -34,7 +34,7 @@ const Login = () => {
   const detectLoginType = (value) => {
     if (value.includes('@')) {
       setLoginType('email');
-    } else if (/^[\+]?[0-9\s\-\(\)]+$/.test(value)) {
+    } else if (/^[+]?\d[\d\s\-()]+$/.test(value)) {
       setLoginType('phone');
     }
   };
@@ -63,7 +63,7 @@ const Login = () => {
       newErrors.login = 'Email или номер телефона обязателен';
     } else if (loginType === 'email' && !/\S+@\S+\.\S+/.test(formData.login)) {
       newErrors.login = 'Некорректный email';
-    } else if (loginType === 'phone' && !/^[\+]?[7-8]\d{10}$/.test(formData.login.replace(/[\s\-\(\)]/g, ''))) {
+    } else if (loginType === 'phone' && !/^[+]?([7-8])\d{10}$/.test(formData.login.replace(/[\s\-()]/g, ''))) {
       newErrors.login = 'Некорректный номер телефона';
     }
 
@@ -97,12 +97,12 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">T</span>
+          <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <img src={logo} alt="logo" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900">{t('login')}</h2>
           <p className="mt-2 text-gray-600">
-            Войдите в свой аккаунт для доступа к заявкам и тестированию
+            {t('loginSubtitle')}
           </p>
         </div>
 
@@ -116,7 +116,7 @@ const Login = () => {
           <div className="space-y-4">
             <div>
               <label htmlFor="login" className="block text-sm font-medium text-gray-700 mb-1">
-                Email или номер телефона
+                {t('loginField')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -133,7 +133,7 @@ const Login = () => {
                   value={formData.login}
                   onChange={handleLoginChange}
                   className={`input-field pl-10 ${errors.login ? 'border-red-300 focus:ring-red-500' : ''}`}
-                  placeholder="example@email.com или +7 777 123 4567"
+                  placeholder={t('loginFieldPlaceholder')}
                 />
               </div>
               {errors.login && (
@@ -185,7 +185,7 @@ const Login = () => {
                 className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Запомнить меня
+                {t('rememberMe')}
               </label>
             </div>
 
@@ -215,26 +215,16 @@ const Login = () => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-50 text-gray-500">Быстрый вход</span>
+                <span className="px-2 bg-gray-50 text-gray-500">{t('loginQuick')}</span>
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-              >
-                <Phone className="h-5 w-5" />
-                <span className="ml-2">По SMS</span>
-              </button>
-
-              <button
-                type="button"
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-              >
-                <Mail className="h-5 w-5" />
-                <span className="ml-2">По Email</span>
-              </button>
+            <div className="mt-6 flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-500">{t('loginQuick')}</span>
+            </div>
+            <div className="flex gap-2 mb-4">
+              <button type="button" className="btn-secondary flex-1">{t('loginBySMS')}</button>
+              <button type="button" className="btn-secondary flex-1">{t('loginByEmail')}</button>
             </div>
           </div>
         </form>

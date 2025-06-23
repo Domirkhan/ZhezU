@@ -55,17 +55,17 @@ const MyApplications = () => {
   const getStatusText = (status) => {
     switch (status) {
       case 'draft':
-        return 'Черновик';
+        return t('myApplicationsStatusDraft');
       case 'submitted':
-        return 'Подана';
+        return t('myApplicationsStatusSubmitted');
       case 'under_review':
-        return 'На рассмотрении';
+        return t('myApplicationsStatusReview');
       case 'accepted':
-        return 'Принята';
+        return t('myApplicationsStatusAccepted');
       case 'rejected':
-        return 'Отклонена';
+        return t('myApplicationsStatusRejected');
       default:
-        return 'Неизвестно';
+        return t('myApplicationsStatusUnknown');
     }
   };
 
@@ -102,7 +102,7 @@ const MyApplications = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">Загрузка заявок...</p>
+            <p className="text-gray-600 mt-4">{t('myApplicationsLoading')}</p>
           </div>
         </div>
       </div>
@@ -115,14 +115,14 @@ const MyApplications = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Мои заявки</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('myApplicationsTitle')}</h1>
             <p className="text-gray-600 mt-2">
-              Управляйте своими заявками на поступление в ЖеЗУ
+              {t('myApplicationsDesc')}
             </p>
           </div>
           <Link to="/applications/new" className="btn-primary flex items-center space-x-2">
             <Plus size={20} />
-            <span>Новая заявка</span>
+            <span>{t('myApplicationsNew')}</span>
           </Link>
         </div>
 
@@ -130,13 +130,13 @@ const MyApplications = () => {
           <div className="text-center py-12">
             <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              У вас пока нет заявок
+              {t('myApplicationsNo')}
             </h3>
             <p className="text-gray-600 mb-6">
-              Создайте свою первую заявку на поступление в ЖеЗУ
+              {t('myApplicationsNoDesc')}
             </p>
             <Link to="/applications/new" className="btn-primary">
-              Создать заявку
+              {t('myApplicationsCreate')}
             </Link>
           </div>
         ) : (
@@ -148,10 +148,10 @@ const MyApplications = () => {
                     {getStatusIcon(application.status)}
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">
-                        Заявка #{application._id.slice(-6).toUpperCase()}
+                        {t('myApplicationsTitle')} #{application._id.slice(-6).toUpperCase()}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        Создана: {formatDate(application.createdAt)}
+                        {t('myApplicationsCreated')}: {formatDate(application.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -166,15 +166,15 @@ const MyApplications = () => {
                   <div className="flex items-center space-x-3">
                     <User className="h-5 w-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-600">ИИН</p>
-                      <p className="font-medium">{application.personalInfo?.iin || 'Не указан'}</p>
+                      <p className="text-sm text-gray-600">{t('myApplicationsIIN')}</p>
+                      <p className="font-medium">{application.personalInfo?.iin || t('notDefined')}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center space-x-3">
                     <GraduationCap className="h-5 w-5 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-600">Специальностей</p>
+                      <p className="text-sm text-gray-600">{t('myApplicationsSpecialitiesCount')}</p>
                       <p className="font-medium">{application.specialities?.length || 0}</p>
                     </div>
                   </div>
@@ -183,10 +183,10 @@ const MyApplications = () => {
                     <Calendar className="h-5 w-5 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-600">
-                        {application.status === 'submitted' ? 'Подана' : 
-                         application.status === 'under_review' ? 'На рассмотрении с' :
-                         application.status === 'accepted' ? 'Принята' :
-                         application.status === 'rejected' ? 'Отклонена' : 'Обновлена'}
+                        {application.status === 'submitted' ? t('myApplicationsStatusSubmitted') : 
+                         application.status === 'under_review' ? t('myApplicationsStatusReview') :
+                         application.status === 'accepted' ? t('myApplicationsStatusAccepted') :
+                         application.status === 'rejected' ? t('myApplicationsStatusRejected') : t('myApplicationsUpdated')}
                       </p>
                       <p className="font-medium">
                         {application.submittedAt ? formatDate(application.submittedAt) :
@@ -201,7 +201,7 @@ const MyApplications = () => {
                 {application.specialities && application.specialities.length > 0 && (
                   <div className="mb-4">
                     <h4 className="text-sm font-medium text-gray-900 mb-2">
-                      Выбранные специальности:
+                      {t('myApplicationsSpecialities')}
                     </h4>
                     <div className="space-y-1">
                       {application.specialities
@@ -224,13 +224,13 @@ const MyApplications = () => {
                 {application.entResults?.totalScore && (
                   <div className="mb-4">
                     <h4 className="text-sm font-medium text-gray-900 mb-2">
-                      Результаты ЕНТ:
+                      {t('myApplicationsENT')}
                     </h4>
                     <div className="flex items-center space-x-4">
                       <span className="text-2xl font-bold text-primary-600">
                         {application.entResults.totalScore}
                       </span>
-                      <span className="text-sm text-gray-600">баллов из 140</span>
+                      <span className="text-sm text-gray-600">{t('myApplicationsENTPoints')}</span>
                     </div>
                   </div>
                 )}
@@ -239,7 +239,7 @@ const MyApplications = () => {
                 {application.comments && application.comments.length > 0 && (
                   <div className="mb-4">
                     <h4 className="text-sm font-medium text-gray-900 mb-2">
-                      Комментарии:
+                      {t('myApplicationsComments')}
                     </h4>
                     <div className="space-y-2">
                       {application.comments.map((comment, index) => (
@@ -261,7 +261,7 @@ const MyApplications = () => {
                       to={`/applications/${application._id}`}
                       className="btn-secondary text-sm"
                     >
-                      Просмотр
+                      {t('myApplicationsView')}
                     </Link>
                     
                     {application.status === 'draft' && (
@@ -269,7 +269,7 @@ const MyApplications = () => {
                         to={`/applications/${application._id}/edit`}
                         className="btn-primary text-sm"
                       >
-                        Редактировать
+                        {t('myApplicationsEdit')}
                       </Link>
                     )}
                   </div>
@@ -287,7 +287,7 @@ const MyApplications = () => {
                       }}
                       className="text-primary-600 hover:text-primary-700 text-sm font-medium"
                     >
-                      Подать заявку
+                      {t('myApplicationsSubmit')}
                     </button>
                   )}
                 </div>
@@ -300,35 +300,35 @@ const MyApplications = () => {
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="card">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Статусы заявок
+              {t('myApplicationsStatuses')}
             </h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Clock className="h-5 w-5 text-gray-500" />
                 <div>
-                  <p className="font-medium text-gray-900">Черновик</p>
-                  <p className="text-sm text-gray-600">Заявка не подана, можно редактировать</p>
+                  <p className="font-medium text-gray-900">{t('myApplicationsStatusDraft')}</p>
+                  <p className="text-sm text-gray-600">{t('myApplicationsStatusLabelDraft')}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Clock className="h-5 w-5 text-blue-500" />
                 <div>
-                  <p className="font-medium text-gray-900">Подана</p>
-                  <p className="text-sm text-gray-600">Заявка отправлена на рассмотрение</p>
+                  <p className="font-medium text-gray-900">{t('myApplicationsStatusSubmitted')}</p>
+                  <p className="text-sm text-gray-600">{t('myApplicationsStatusLabelSubmitted')}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Eye className="h-5 w-5 text-yellow-500" />
                 <div>
-                  <p className="font-medium text-gray-900">На рассмотрении</p>
-                  <p className="text-sm text-gray-600">Заявка проверяется приемной комиссией</p>
+                  <p className="font-medium text-gray-900">{t('myApplicationsStatusReview')}</p>
+                  <p className="text-sm text-gray-600">{t('myApplicationsStatusLabelReview')}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <CheckCircle className="h-5 w-5 text-green-500" />
                 <div>
-                  <p className="font-medium text-gray-900">Принята</p>
-                  <p className="text-sm text-gray-600">Заявка одобрена, ожидайте зачисления</p>
+                  <p className="font-medium text-gray-900">{t('myApplicationsStatusAccepted')}</p>
+                  <p className="text-sm text-gray-600">{t('myApplicationsStatusLabelAccepted')}</p>
                 </div>
               </div>
             </div>
@@ -336,30 +336,22 @@ const MyApplications = () => {
 
           <div className="card">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Важная информация
+              {t('myApplicationsInfo')}
             </h3>
             <div className="space-y-3 text-sm text-gray-600">
-              <p>
-                • Заявки рассматриваются в течение 5-7 рабочих дней
-              </p>
-              <p>
-                • После подачи заявки редактирование невозможно
-              </p>
-              <p>
-                • Уведомления о статусе отправляются на email и SMS
-              </p>
-              <p>
-                • При возникновении вопросов обращайтесь в приемную комиссию
-              </p>
+              <p>{t('myApplicationsInfo1')}</p>
+              <p>{t('myApplicationsInfo2')}</p>
+              <p>{t('myApplicationsInfo3')}</p>
+              <p>{t('myApplicationsInfo4')}</p>
             </div>
             
             <div className="mt-4 pt-4 border-t">
               <p className="text-sm font-medium text-gray-900 mb-2">
-                Контакты приемной комиссии:
+                {t('myApplicationsContact')}
               </p>
               <p className="text-sm text-gray-600">
-                Телефон: +7 (7282) 23-88-49<br />
-                Email: admission@zhezu.edu.kz
+                {t('myApplicationsContactPhone')}<br />
+                {t('myApplicationsContactEmail')}
               </p>
             </div>
           </div>

@@ -13,11 +13,11 @@ const NewsList = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const categories = [
-    { id: 'all', name: 'Все новости' },
-    { id: 'admission', name: 'Поступление' },
-    { id: 'academic', name: 'Учебный процесс' },
-    { id: 'events', name: 'Мероприятия' },
-    { id: 'announcements', name: 'Объявления' }
+    { id: 'all', name: t('newsCatAll') },
+    { id: 'admission', name: t('newsCatAdmission') },
+    { id: 'academic', name: t('newsCatAcademic') },
+    { id: 'events', name: t('newsCatEvents') },
+    { id: 'announcements', name: t('newsCatAnnouncements') }
   ];
 
   useEffect(() => {
@@ -55,8 +55,14 @@ const NewsList = () => {
   };
 
   const getCategoryName = (category) => {
-    const cat = categories.find(c => c.id === category);
-    return cat ? cat.name : category;
+    switch (category) {
+      case 'all': return t('newsCatAll');
+      case 'admission': return t('newsCatAdmission');
+      case 'academic': return t('newsCatAcademic');
+      case 'events': return t('newsCatEvents');
+      case 'announcements': return t('newsCatAnnouncements');
+      default: return category;
+    }
   };
 
   const getCategoryColor = (category) => {
@@ -80,10 +86,10 @@ const NewsList = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Новости ЖеЗУ
+            {t('newsPageTitle')}
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Актуальные новости и объявления Жетысуского университета имени И. Жансугурова
+            {t('newsPageDesc')}
           </p>
         </div>
 
@@ -113,11 +119,11 @@ const NewsList = () => {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">Загрузка новостей...</p>
+            <p className="text-gray-600 mt-4">{t('newsLoading')}</p>
           </div>
         ) : news.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">Новости не найдены</p>
+            <p className="text-gray-600">{t('newsNotFound')}</p>
           </div>
         ) : (
           <>
@@ -175,7 +181,7 @@ const NewsList = () => {
                     to={`/news/${article._id}`}
                     className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
                   >
-                    Читать далее
+                    {t('newsReadMore')}
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </Link>
                 </article>
@@ -191,17 +197,17 @@ const NewsList = () => {
                     disabled={currentPage === 1}
                     className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Предыдущая
+                    {t('newsPrev')}
                   </button>
                   
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`px-3 py-2 text-sm font-medium rounded-md ${
+                      className={`px-3 py-2 text-sm font-medium rounded-md border ${
                         currentPage === page
-                          ? 'bg-primary-600 text-white'
-                          : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                          ? 'bg-primary-600 text-white border-primary-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
                       {page}
@@ -213,7 +219,7 @@ const NewsList = () => {
                     disabled={currentPage === totalPages}
                     className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Следующая
+                    {t('newsNext')}
                   </button>
                 </nav>
               </div>

@@ -17,80 +17,51 @@ const TestResults = () => {
 
   const categoryInfo = {
     IT: {
-      name: 'Информационные технологии',
+      name: t('catITName'),
       icon: BookOpen,
       color: '#3B82F6',
-      description: 'Программирование, веб-разработка, кибербезопасность',
+      description: t('catITDesc'),
       professions: [
-        'Программист',
-        'Веб-разработчик',
-        'Системный администратор',
-        'Специалист по кибербезопасности',
-        'DevOps инженер'
+        t('catITProf1'), t('catITProf2'), t('catITProf3'), t('catITProf4'), t('catITProf5')
       ],
       programs: [
-        'Информационные системы',
-        'Программная инженерия',
-        'Компьютерные науки',
-        'Кибербезопасность'
+        t('catITProg1'), t('catITProg2'), t('catITProg3'), t('catITProg4')
       ]
     },
     Social: {
-      name: 'Социальные науки',
+      name: t('catSocialName'),
       icon: Users,
       color: '#10B981',
-      description: 'Работа с людьми, консультирование, управление',
+      description: t('catSocialDesc'),
       professions: [
-        'Психолог',
-        'Социальный работник',
-        'HR-специалист',
-        'Менеджер по продажам',
-        'Педагог'
+        t('catSocialProf1'), t('catSocialProf2'), t('catSocialProf3'), t('catSocialProf4'), t('catSocialProf5')
       ],
       programs: [
-        'Психология',
-        'Социальная работа',
-        'Управление персоналом',
-        'Педагогика'
+        t('catSocialProg1'), t('catSocialProg2'), t('catSocialProg3'), t('catSocialProg4')
       ]
     },
     Science: {
-      name: 'Естественные науки',
+      name: t('catScienceName'),
       icon: Award,
       color: '#8B5CF6',
-      description: 'Исследования, анализ, научные открытия',
+      description: t('catScienceDesc'),
       professions: [
-        'Исследователь',
-        'Аналитик данных',
-        'Лаборант',
-        'Научный сотрудник',
-        'Биолог'
+        t('catScienceProf1'), t('catScienceProf2'), t('catScienceProf3'), t('catScienceProf4'), t('catScienceProf5')
       ],
       programs: [
-        'Биология',
-        'Химия',
-        'Физика',
-        'Математика',
-        'Экология'
+        t('catScienceProg1'), t('catScienceProg2'), t('catScienceProg3'), t('catScienceProg4'), t('catScienceProg5')
       ]
     },
     Creative: {
-      name: 'Творческие специальности',
+      name: t('catCreativeName'),
       icon: Palette,
       color: '#F59E0B',
-      description: 'Дизайн, искусство, креативные решения',
+      description: t('catCreativeDesc'),
       professions: [
-        'Графический дизайнер',
-        'UX/UI дизайнер',
-        'Художник',
-        'Архитектор',
-        'Маркетолог'
+        t('catCreativeProf1'), t('catCreativeProf2'), t('catCreativeProf3'), t('catCreativeProf4'), t('catCreativeProf5')
       ],
       programs: [
-        'Дизайн',
-        'Архитектура',
-        'Изобразительное искусство',
-        'Реклама и PR'
+        t('catCreativeProg1'), t('catCreativeProg2'), t('catCreativeProg3'), t('catCreativeProg4')
       ]
     }
   };
@@ -139,7 +110,7 @@ const TestResults = () => {
             {t('testResults')}
           </h1>
           <p className="text-xl text-gray-600">
-            Ваши результаты профориентационного тестирования
+            {t('testResultsDesc')}
           </p>
         </div>
 
@@ -149,19 +120,19 @@ const TestResults = () => {
             <div className="text-3xl font-bold text-primary-600 mb-2">
               {answeredQuestions}/{totalQuestions}
             </div>
-            <p className="text-gray-600">Отвеченные вопросы</p>
+            <p className="text-gray-600">{t('answeredQuestions')}</p>
           </div>
           <div className="card text-center">
             <div className="text-3xl font-bold text-secondary-600 mb-2">
               {Math.round((answeredQuestions / totalQuestions) * 100)}%
             </div>
-            <p className="text-gray-600">Завершенность теста</p>
+            <p className="text-gray-600">{t('testCompletion')}</p>
           </div>
           <div className="card text-center">
             <div className="text-3xl font-bold text-accent-600 mb-2">
               {topCategory.percentage}%
             </div>
-            <p className="text-gray-600">Максимальное соответствие</p>
+            <p className="text-gray-600">{t('maxMatch')}</p>
           </div>
         </div>
 
@@ -171,7 +142,7 @@ const TestResults = () => {
           <div className="space-y-6">
             <div className="card">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Распределение по категориям
+                {t('categoryDistribution')}
               </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -194,7 +165,7 @@ const TestResults = () => {
 
             <div className="card">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Результаты по баллам
+                {t('scoreResults')}
               </h3>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={barData}>
@@ -223,9 +194,9 @@ const TestResults = () => {
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">
-                  Ваша основная специализация
+                  {t('mainSpecialization')}
                 </h3>
-                <p className="text-gray-600">{topCategory.percentage}% соответствие</p>
+                <p className="text-gray-600">{topCategory.percentage}% {t('match')}</p>
               </div>
             </div>
 
@@ -238,7 +209,7 @@ const TestResults = () => {
 
             <div className="space-y-4">
               <div>
-                <h5 className="font-medium text-gray-900 mb-2">Рекомендуемые профессии:</h5>
+                <h5 className="font-medium text-gray-900 mb-2">{t('recommendedProfessionsTitle')}</h5>
                 <div className="flex flex-wrap gap-2">
                   {topCategory.professions.slice(0, 3).map((profession, index) => (
                     <span 
@@ -252,7 +223,7 @@ const TestResults = () => {
               </div>
 
               <div>
-                <h5 className="font-medium text-gray-900 mb-2">Образовательные программы ЖеЗУ:</h5>
+                <h5 className="font-medium text-gray-900 mb-2">{t('programsTitle')}</h5>
                 <div className="space-y-1">
                   {topCategory.programs.slice(0, 3).map((program, index) => (
                     <div key={index} className="flex items-center space-x-2">
@@ -269,7 +240,7 @@ const TestResults = () => {
         {/* All Categories */}
         <div className="card mb-8">
           <h3 className="text-xl font-semibold text-gray-900 mb-6">
-            {t('recommendedProfessions')}
+            {t('recommendedProfessionsTitle')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {sortedCategories.map((category, index) => {

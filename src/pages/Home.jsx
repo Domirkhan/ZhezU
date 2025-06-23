@@ -8,33 +8,33 @@ const Home = () => {
   const features = [
     {
       icon: BookOpen,
-      title: 'Профориентационное тестирование',
-      description: 'Пройдите комплексный тест для определения наиболее подходящих специальностей'
+      title: t('feature1Title'),
+      description: t('feature1Desc')
     },
     {
       icon: MessageCircle,
-      title: 'ИИ-консультант',
-      description: 'Получите персональные консультации и ответы на вопросы о поступлении'
+      title: t('feature2Title'),
+      description: t('feature2Desc')
     },
     {
       icon: Users,
-      title: 'Персональное сопровождение',
-      description: 'Индивидуальный подход к каждому абитуриенту на всех этапах поступления'
+      title: t('feature3Title'),
+      description: t('feature3Desc')
     },
     {
       icon: Award,
-      title: 'Информация о грантах',
-      description: 'Актуальная информация о грантах, стипендиях и льготах для студентов'
+      title: t('feature4Title'),
+      description: t('feature4Desc')
     }
   ];
 
   const benefits = [
-    'Бесплатное профориентационное тестирование',
-    'Персональные рекомендации по специальностям',
-    'Актуальная информация о поступлении',
-    'Поддержка на казахском, русском и английском языках',
-    'Генерация PDF-отчетов с результатами',
-    'Круглосуточная поддержка ИИ-консультанта'
+    t('benefit1'),
+    t('benefit2'),
+    t('benefit3'),
+    t('benefit4'),
+    t('benefit5'),
+    t('benefit6')
   ];
 
   return (
@@ -68,10 +68,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Наши возможности
+              {t('homeFeaturesTitle')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Комплексная поддержка для успешного поступления в ЖеЗУ
+              {t('homeFeaturesDesc')}
             </p>
           </div>
 
@@ -102,11 +102,10 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Почему выбирают Талапкер ЖеЗУ?
+                {t('homeWhyTitle')}
               </h2>
               <p className="text-lg text-gray-600 mb-8">
-                Наша платформа предоставляет все необходимые инструменты для успешного 
-                поступления в Жетысуский университет имени И. Жансугурова.
+                {t('homeWhyDesc')}
               </p>
               <div className="space-y-4">
                 {benefits.map((benefit, index) => (
@@ -134,17 +133,16 @@ const Home = () => {
       <section className="py-20 bg-gray-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Готовы начать свой путь в ЖеЗУ?
+            {t('homeCtaTitle')}
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Пройдите профориентационный тест и получите персональные рекомендации 
-            по выбору специальности уже сегодня.
+            {t('homeCtaDesc')}
           </p>
           <Link 
             to="/test" 
             className="inline-flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200"
           >
-            <span>Начать тестирование</span>
+            <span>{t('homeCtaBtn')}</span>
             <ArrowRight size={20} />
           </Link>
         </div>

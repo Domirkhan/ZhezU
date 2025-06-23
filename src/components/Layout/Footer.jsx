@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Mail, Phone, MapPin, ExternalLink } from 'lucide-react';
+import logo from '../../../public/logo.png';
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -11,14 +12,13 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">T</span>
+              <div className="w-10 h-10 flex items-center justify-center">
+                <img src={logo} alt="logo" />
               </div>
-              <span className="text-xl font-bold">Талапкер ЖеЗУ</span>
+              <span className="text-xl font-bold">{t('footerBrand')}</span>
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
-              Интеллектуальный ИИ-агент для профориентации и консультаций абитуриентов 
-              Жетысуского университета имени И. Жансугурова.
+              {t('footerDesc')}
             </p>
             <div className="flex space-x-4">
               <a
@@ -35,38 +35,38 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Контакты</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footerContacts')}</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-2 text-gray-300">
                 <MapPin size={16} />
-                <span className="text-sm">г. Талдыкорган, ул. Жансугурова, 187А</span>
+                <span className="text-sm">{t('footerAddress')}</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-300">
                 <Phone size={16} />
-                <span className="text-sm">+7 (7282) 23-88-49</span>
+                <span className="text-sm">{t('footerPhone')}</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-300">
                 <Mail size={16} />
-                <span className="text-sm">info@zhezu.edu.kz</span>
+                <span className="text-sm">{t('footerEmail')}</span>
               </div>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Быстрые ссылки</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footerQuickLinks')}</h3>
             <div className="space-y-2">
               <a href="#" className="block text-gray-300 hover:text-white transition-colors text-sm">
-                Образовательные программы
+                {t('footerLinkPrograms')}
               </a>
               <a href="#" className="block text-gray-300 hover:text-white transition-colors text-sm">
-                Приемная комиссия
+                {t('footerLinkAdmission')}
               </a>
               <a href="#" className="block text-gray-300 hover:text-white transition-colors text-sm">
-                Гранты и стипендии
+                {t('footerLinkGrants')}
               </a>
               <a href="#" className="block text-gray-300 hover:text-white transition-colors text-sm">
-                Новости университета
+                {t('footerLinkNews')}
               </a>
             </div>
           </div>
@@ -74,10 +74,10 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2024 Талапкер ЖеЗУ. Все права защищены.
+            {t('footerCopyright')}
           </p>
           <p className="text-gray-400 text-sm mt-2 sm:mt-0">
-            Создано для абитуриентов ЖеЗУ
+            {t('footerMadeFor')}
           </p>
         </div>
       </div>

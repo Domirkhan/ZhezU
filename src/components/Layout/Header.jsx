@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
-import { Menu, X, Globe, User, LogOut, FileText, Newspaper } from 'lucide-react';
+import { Menu, X, Globe, User, LogOut, FileText } from 'lucide-react';
+import logo from '../../../public/logo.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,10 +36,10 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">T</span>
+            <div className="w-10 h-10 flex items-center justify-center">
+              <img src={logo} alt="logo" />
             </div>
-            <span className="text-xl font-bold text-gray-900">Талапкер ЖеЗУ</span>
+            <span className="text-xl font-bold text-gray-900">Талапкер ZhezU</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -53,7 +54,7 @@ const Header = () => {
               {t('chat')}
             </Link>
             <Link to="/news" className="text-gray-700 hover:text-primary-600 transition-colors">
-              Новости
+              {t('news')}
             </Link>
             {isAuthenticated && (
               <Link to="/applications" className="text-gray-700 hover:text-primary-600 transition-colors">
@@ -193,7 +194,7 @@ const Header = () => {
                 onClick={() => setIsMenuOpen(false)}
                 className="text-gray-700 hover:text-primary-600 px-4 py-2"
               >
-                Новости
+                {t('news')}
               </Link>
               {isAuthenticated && (
                 <Link

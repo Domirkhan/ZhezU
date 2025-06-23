@@ -15,52 +15,52 @@ const Test = () => {
   const questions = [
     {
       id: 1,
-      question: "Какой из следующих видов деятельности вам наиболее интересен?",
+      question: t('q1'),
       options: [
-        { id: 'a', text: 'Работа с компьютером и программированием', category: 'IT' },
-        { id: 'b', text: 'Общение с людьми и консультирование', category: 'Social' },
-        { id: 'c', text: 'Исследование и эксперименты', category: 'Science' },
-        { id: 'd', text: 'Создание и дизайн', category: 'Creative' }
+        { id: 'a', text: t('q1a'), category: 'IT' },
+        { id: 'b', text: t('q1b'), category: 'Social' },
+        { id: 'c', text: t('q1c'), category: 'Science' },
+        { id: 'd', text: t('q1d'), category: 'Creative' }
       ]
     },
     {
       id: 2,
-      question: "В какой среде вы предпочитаете работать?",
+      question: t('q2'),
       options: [
-        { id: 'a', text: 'В тихом офисе за компьютером', category: 'IT' },
-        { id: 'b', text: 'В команде с активным общением', category: 'Social' },
-        { id: 'c', text: 'В лаборатории или исследовательском центре', category: 'Science' },
-        { id: 'd', text: 'В творческой студии или мастерской', category: 'Creative' }
+        { id: 'a', text: t('q2a'), category: 'IT' },
+        { id: 'b', text: t('q2b'), category: 'Social' },
+        { id: 'c', text: t('q2c'), category: 'Science' },
+        { id: 'd', text: t('q2d'), category: 'Creative' }
       ]
     },
     {
       id: 3,
-      question: "Какие навыки вы считаете своими сильными сторонами?",
+      question: t('q3'),
       options: [
-        { id: 'a', text: 'Логическое мышление и решение технических задач', category: 'IT' },
-        { id: 'b', text: 'Коммуникативные навыки и эмпатия', category: 'Social' },
-        { id: 'c', text: 'Аналитическое мышление и внимание к деталям', category: 'Science' },
-        { id: 'd', text: 'Креативность и художественное видение', category: 'Creative' }
+        { id: 'a', text: t('q3a'), category: 'IT' },
+        { id: 'b', text: t('q3b'), category: 'Social' },
+        { id: 'c', text: t('q3c'), category: 'Science' },
+        { id: 'd', text: t('q3d'), category: 'Creative' }
       ]
     },
     {
       id: 4,
-      question: "Что мотивирует вас больше всего в работе?",
+      question: t('q4'),
       options: [
-        { id: 'a', text: 'Создание инновационных технологических решений', category: 'IT' },
-        { id: 'b', text: 'Помощь людям и решение их проблем', category: 'Social' },
-        { id: 'c', text: 'Открытие новых знаний и фактов', category: 'Science' },
-        { id: 'd', text: 'Выражение идей через творчество', category: 'Creative' }
+        { id: 'a', text: t('q4a'), category: 'IT' },
+        { id: 'b', text: t('q4b'), category: 'Social' },
+        { id: 'c', text: t('q4c'), category: 'Science' },
+        { id: 'd', text: t('q4d'), category: 'Creative' }
       ]
     },
     {
       id: 5,
-      question: "Какой тип проектов вас больше привлекает?",
+      question: t('q5'),
       options: [
-        { id: 'a', text: 'Разработка мобильных приложений или веб-сайтов', category: 'IT' },
-        { id: 'b', text: 'Организация мероприятий и работа с клиентами', category: 'Social' },
-        { id: 'c', text: 'Исследовательские проекты и анализ данных', category: 'Science' },
-        { id: 'd', text: 'Создание визуального контента и дизайна', category: 'Creative' }
+        { id: 'a', text: t('q5a'), category: 'IT' },
+        { id: 'b', text: t('q5b'), category: 'Social' },
+        { id: 'c', text: t('q5c'), category: 'Science' },
+        { id: 'd', text: t('q5d'), category: 'Creative' }
       ]
     }
   ];
@@ -148,7 +148,7 @@ const Test = () => {
           <div className="card max-w-2xl mx-auto">
             <div className="text-center">
               <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-                Перед началом тестирования
+                {t('testBeforeTitle')}
               </h2>
               
               <div className="space-y-4 text-left mb-8">
@@ -157,7 +157,7 @@ const Test = () => {
                     <span className="text-primary-600 text-sm font-semibold">1</span>
                   </div>
                   <p className="text-gray-700">
-                    Тест состоит из <strong>{questions.length} вопросов</strong> по профориентации
+                    {t('testBefore1', { count: questions.length })}
                   </p>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -165,7 +165,7 @@ const Test = () => {
                     <span className="text-primary-600 text-sm font-semibold">2</span>
                   </div>
                   <p className="text-gray-700">
-                    На прохождение теста отводится <strong>10 минут</strong>
+                    {t('testBefore2')}
                   </p>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -173,7 +173,7 @@ const Test = () => {
                     <span className="text-primary-600 text-sm font-semibold">3</span>
                   </div>
                   <p className="text-gray-700">
-                    Отвечайте честно, основываясь на своих предпочтениях
+                    {t('testBefore3')}
                   </p>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -181,7 +181,7 @@ const Test = () => {
                     <span className="text-primary-600 text-sm font-semibold">4</span>
                   </div>
                   <p className="text-gray-700">
-                    После завершения вы получите персональные рекомендации
+                    {t('testBefore4')}
                   </p>
                 </div>
               </div>
@@ -226,7 +226,7 @@ const Test = () => {
           </div>
           <div className="flex justify-between text-sm text-gray-600 mt-2">
             <span>{t('question')} {currentQuestion + 1} {t('of')} {questions.length}</span>
-            <span>{Math.round(progress)}% завершено</span>
+            <span>{t('testProgress', { percent: Math.round(progress) })}</span>
           </div>
         </div>
 

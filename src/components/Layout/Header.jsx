@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
-import { Menu, X, Globe, User, LogOut } from 'lucide-react';
+import { Menu, X, Globe, User, LogOut, FileText, Newspaper } from 'lucide-react';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,6 +52,14 @@ const Header = () => {
             <Link to="/chat" className="text-gray-700 hover:text-primary-600 transition-colors">
               {t('chat')}
             </Link>
+            <Link to="/news" className="text-gray-700 hover:text-primary-600 transition-colors">
+              Новости
+            </Link>
+            {isAuthenticated && (
+              <Link to="/applications" className="text-gray-700 hover:text-primary-600 transition-colors">
+                Заявки
+              </Link>
+            )}
             {isAuthenticated && user?.role === 'admin' && (
               <Link to="/admin" className="text-gray-700 hover:text-primary-600 transition-colors">
                 {t('admin')}
@@ -116,6 +124,14 @@ const Header = () => {
                       <User size={16} />
                       <span>{t('profile')}</span>
                     </Link>
+                    <Link
+                      to="/applications"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      <FileText size={16} />
+                      <span>Мои заявки</span>
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -172,6 +188,22 @@ const Header = () => {
               >
                 {t('chat')}
               </Link>
+              <Link
+                to="/news"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-gray-700 hover:text-primary-600 px-4 py-2"
+              >
+                Новости
+              </Link>
+              {isAuthenticated && (
+                <Link
+                  to="/applications"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-gray-700 hover:text-primary-600 px-4 py-2"
+                >
+                  Заявки
+                </Link>
+              )}
               
               {!isAuthenticated && (
                 <div className="flex space-x-3 px-4 pt-3 border-t border-gray-100">

@@ -1,64 +1,84 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { 
-  Users, 
-  FileText, 
-  MessageSquare, 
-  Settings, 
+import React, { useState } from 'react';
+import {
+  Users,
+  FileText,
+  GraduationCap,
+  Newspaper,
+  Settings,
   TrendingUp,
   Calendar,
   Award,
   Eye,
   Edit,
   Trash2,
-  Plus
+  Plus,
+  LogOut,
+  BarChart3,
+  Search,
+  Filter,
+  X
 } from 'lucide-react';
-import axios from 'axios';
+import StatisticsPanel from '../../components/StatisticsPanel';
+import Modal from '../../components/Modal';
 
-const AdminDashboard = () => {
-  const { t } = useTranslation();
+const AdminDashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState('');
+  const [editingItem, setEditingItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Mock data - in real app, this would come from API
   const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalTests: 0,
-    totalMessages: 0,
-    todayRegistrations: 0
+    totalUsers: 1245,
+    totalTests: 8923,
+    totalNews: 45,
+    totalSpecialties: 28,
+    todayRegistrations: 12,
+    activeTests: 156
   });
-  const [users, setUsers] = useState([]);
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  const [specialties, setSpecialties] = useState([
+    { id: 1, name: 'Информационные технологии', description: 'Разработка программного обеспечения, системное администрирование', studentsCount: 324, isActive: true },
+    { id: 2, name: 'Медицина', description: 'Лечебное дело, стоматология, фармацевтика', studentsCount: 892, isActive: true },
+    { id: 3, name: 'Инженерия', description: 'Машиностроение, электротехника, строительство', studentsCount: 567, isActive: true },
+    { id: 4, name: 'Экономика и финансы', description: 'Бухгалтерский учет, финансы, банковское дело', studentsCount: 445, isActive: true },
+  ]);
 
-  const fetchDashboardData = async () => {
-    try {
-      // В реальном приложении здесь были бы отдельные API endpoints для админа
-      const [usersResponse, testsResponse] = await Promise.all([
-        axios.get('/api/admin/users'),
-        axios.get('/api/admin/tests')
-      ]);
-      
-      setUsers(usersResponse.data || []);
-      setTests(testsResponse.data || []);
-      
-      // Подсчет статистики
-      setStats({
-        totalUsers: usersResponse.data?.length || 0,
-        totalTests: testsResponse.data?.length || 0,
-        totalMessages: 0, // Будет реализовано позже
-        todayRegistrations: 0 // Будет реализовано позже
-      });
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      // Устанавливаем пустые данные в случае ошибки
-      setUsers([]);
-      setTests([]);
-    } finally {
-      setLoading(false);
+  const [news, setNews] = useState([
+    { id: 1, title: 'Новая программа стипендий для IT-специальностей', content: 'Университет объявляет о запуске программы повышенных стипендий...', author: 'Администрация', date: '2024-01-15', status: 'published' },
+    { id: 2, title: 'Дни открытых дверей факультета медицины', content: 'Приглашаем всех желающих на дни открытых дверей...', author: 'Администрация', date: '2024-01-14', status: 'published' },
+    { id: 3, title: 'Международная олимпиада по программированию', content: 'Студенты нашего университета заняли призовые места...', author: 'Администрация', date: '2024-01-13', status: 'draft' },
+  ]);
+
+  const [testQuestions, setTestQuestions] = useState([
+    {
+      id: 1,
+      question: 'Какой тип деятельности вас больше привлекает?',
+      options: [
+        { id: 1, text: 'Работа с людьми', category: 'social' },
+        { id: 2, text: 'Работа с техникой', category: 'technical' },
+        { id: 3, text: 'Творческая деятельность', category: 'creative' },
+        { id: 4, text: 'Аналитическая работа', category: 'analytical' }
+      ]
+    },
+    {
+      id: 2,
+      question: 'В какой среде вам комфортнее работать?',
+      options: [
+        { id: 1, text: 'В команде', category: 'social' },
+        { id: 2, text: 'Индивидуально', category: 'technical' },
+        { id: 3, text: 'В творческой студии', category: 'creative' },
+        { id: 4, text: 'В исследовательской лаборатории', category: 'analytical' }
+      ]
     }
-  };
+  ]);
+
+  const [users, setUsers] = useState([
+    { id: 1, fullName: 'Айдана Нурбекова', email: 'aidana@email.com', phoneNumber: '+7 707 123 4567', role: 'user', createdAt: '2024-01-10T10:00:00Z', lastLogin: '2024-01-15T14:30:00Z' },
+    { id: 2, fullName: 'Арман Казбеков', email: 'arman@email.com', phoneNumber: '+7 707 987 6543', role: 'user', createdAt: '2024-01-09T09:15:00Z', lastLogin: '2024-01-15T11:20:00Z' },
+    { id: 3, fullName: 'Диана Сагитова', email: 'diana@email.com', phoneNumber: '+7 707 555 1234', role: 'user', createdAt: '2024-01-08T16:45:00Z', lastLogin: '2024-01-14T20:10:00Z' },
+  ]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
@@ -72,52 +92,143 @@ const AdminDashboard = () => {
 
   const tabs = [
     { id: 'overview', name: 'Обзор', icon: TrendingUp },
-    { id: 'users', name: 'Пользователи', icon: Users },
+    { id: 'specialties', name: 'Специальности', icon: GraduationCap },
+    { id: 'news', name: 'Новости', icon: Newspaper },
     { id: 'tests', name: 'Тесты', icon: FileText },
-    { id: 'messages', name: 'Сообщения', icon: MessageSquare },
+    { id: 'users', name: 'Пользователи', icon: Users },
+    { id: 'statistics', name: 'Статистика', icon: BarChart3 },
     { id: 'settings', name: 'Настройки', icon: Settings }
   ];
 
-  const StatCard = ({ title, value, icon: Icon, color = 'primary' }) => (
-    <div className="card">
+  const StatCard = ({ title, value, icon: Icon, color = 'indigo', trend = null }) => (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-600">{title}</p>
-          <p className={`text-2xl font-bold text-${color}-600`}>{value}</p>
+          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className={`text-3xl font-bold text-${color}-600 mt-2`}>{value}</p>
+          {trend && (
+            <p className="text-sm text-green-600 mt-1">
+              +{trend}% за месяц
+            </p>
+          )}
         </div>
-        <div className={`w-12 h-12 bg-${color}-100 rounded-lg flex items-center justify-center`}>
+        <div className={`w-12 h-12 bg-${color}-100 rounded-xl flex items-center justify-center`}>
           <Icon className={`text-${color}-600`} size={24} />
         </div>
       </div>
     </div>
   );
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Панель администратора
-          </h1>
-          <p className="text-gray-600">
-            Управление системой Талапкер ЖеЗУ
-          </p>
-        </div>
+  const handleAddItem = (type) => {
+    setModalType(type);
+    setEditingItem(null);
+    setShowModal(true);
+  };
 
+  const handleEditItem = (type, item) => {
+    setModalType(type);
+    setEditingItem(item);
+    setShowModal(true);
+  };
+
+  const handleDeleteItem = (type, id) => {
+    if (window.confirm('Вы уверены, что хотите удалить этот элемент?')) {
+      switch (type) {
+        case 'specialty':
+          setSpecialties(specialties.filter(s => s.id !== id));
+          break;
+        case 'news':
+          setNews(news.filter(n => n.id !== id));
+          break;
+        case 'question':
+          setTestQuestions(testQuestions.filter(q => q.id !== id));
+          break;
+        case 'user':
+          setUsers(users.filter(u => u.id !== id));
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
+  const handleSaveItem = (type, data) => {
+    const now = new Date().toISOString();
+
+    switch (type) {
+      case 'specialty':
+        if (editingItem) {
+          setSpecialties(specialties.map(s => s.id === editingItem.id ? { ...s, ...data } : s));
+        } else {
+          const newSpecialty = {
+            id: Date.now(),
+            ...data,
+            studentsCount: 0,
+            isActive: true
+          };
+          setSpecialties([...specialties, newSpecialty]);
+        }
+        break;
+      case 'news':
+        if (editingItem) {
+          setNews(news.map(n => n.id === editingItem.id ? { ...n, ...data } : n));
+        } else {
+          const newNews = {
+            id: Date.now(),
+            ...data,
+            author: user?.name || user?.fullName || 'Админ',
+            date: now,
+            status: 'published'
+          };
+          setNews([...news, newNews]);
+        }
+        break;
+      case 'question':
+        if (editingItem) {
+          setTestQuestions(testQuestions.map(q => q.id === editingItem.id ? { ...q, ...data } : q));
+        } else {
+          const newQuestion = {
+            id: Date.now(),
+            ...data
+          };
+          setTestQuestions([...testQuestions, newQuestion]);
+        }
+        break;
+      default:
+        break;
+    }
+
+    setShowModal(false);
+    setEditingItem(null);
+  };
+
+  const filteredData = (data, searchFields) => {
+    if (!searchTerm) return data;
+    return data.filter(item =>
+      searchFields.some(field =>
+        item[field]?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+     
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
         <div className="mb-8">
           <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="-mb-px flex space-x-8 overflow-x-auto">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                    className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 whitespace-nowrap ${
                       activeTab === tab.id
-                        ? 'border-primary-500 text-primary-600'
+                        ? 'border-indigo-500 text-indigo-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -134,121 +245,375 @@ const AdminDashboard = () => {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
               <StatCard
-                title="Всего пользователей"
+                title="Пользователи"
                 value={stats.totalUsers}
                 icon={Users}
-                color="primary"
+                color="indigo"
+                trend={8}
               />
               <StatCard
-                title="Пройдено тестов"
+                title="Прохождений тестов"
                 value={stats.totalTests}
                 icon={FileText}
-                color="secondary"
+                color="green"
+                trend={15}
               />
               <StatCard
-                title="Сообщений в чате"
-                value={stats.totalMessages}
-                icon={MessageSquare}
-                color="accent"
+                title="Специальности"
+                value={stats.totalSpecialties}
+                icon={GraduationCap}
+                color="purple"
+              />
+              <StatCard
+                title="Новости"
+                value={stats.totalNews}
+                icon={Newspaper}
+                color="orange"
+              />
+              <StatCard
+                title="Активные тесты"
+                value={stats.activeTests}
+                icon={Award}
+                color="blue"
               />
               <StatCard
                 title="Регистраций сегодня"
                 value={stats.todayRegistrations}
                 icon={Calendar}
-                color="success"
+                color="pink"
               />
             </div>
 
-            {/* Recent Activity */}
+            {/* Recent Activities */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="card">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   Последние регистрации
                 </h3>
-                {loading ? (
-                  <div className="text-center py-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-                  </div>
-                ) : users.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">Нет данных</p>
-                ) : (
-                  <div className="space-y-3">
-                    {users.slice(0, 5).map((user) => (
-                      <div key={user._id} className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm font-medium">
-                            {user.fullName?.charAt(0) || 'U'}
-                          </span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{user.fullName}</p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
-                        </div>
-                        <span className="text-xs text-gray-400">
-                          {formatDate(user.createdAt)}
+                <div className="space-y-4">
+                  {users.slice(0, 5).map((user) => (
+                    <div key={user.id} className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <span className="text-indigo-600 text-sm font-medium">
+                          {user.fullName.charAt(0)}
                         </span>
                       </div>
-                    ))}
-                  </div>
-                )}
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{user.fullName}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                      <span className="text-xs text-gray-400">
+                        {formatDate(user.createdAt)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="card">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Последние тесты
+                  Популярные специальности
                 </h3>
-                {loading ? (
-                  <div className="text-center py-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-                  </div>
-                ) : tests.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">Нет данных</p>
-                ) : (
-                  <div className="space-y-3">
-                    {tests.slice(0, 5).map((test) => (
-                      <div key={test._id} className="flex items-center justify-between">
+                <div className="space-y-4">
+                  {specialties
+                    .sort((a, b) => b.studentsCount - a.studentsCount)
+                    .slice(0, 5)
+                    .map((specialty) => (
+                      <div key={specialty.id} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <Award className="text-secondary-600" size={16} />
+                          <GraduationCap className="text-purple-600" size={20} />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              Тест завершен
+                              {specialty.name}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {test.answeredQuestions}/{test.totalQuestions} вопросов
+                              {specialty.studentsCount} студентов
                             </p>
                           </div>
                         </div>
-                        <span className="text-xs text-gray-400">
-                          {formatDate(test.completedAt)}
-                        </span>
+                        <div className="w-16 bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-purple-600 h-2 rounded-full"
+                            style={{ width: `${(specialty.studentsCount / 1000) * 100}%` }}
+                          ></div>
+                        </div>
                       </div>
                     ))}
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'users' && (
-          <div className="card">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Управление пользователями
-              </h3>
-              <button className="btn-primary flex items-center space-x-2">
+        {activeTab === 'specialties' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Управление специальностями</h2>
+                <p className="text-sm text-gray-600">Добавляйте, редактируйте и удаляйте специальности</p>
+              </div>
+              <button
+                onClick={() => handleAddItem('specialty')}
+                className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
                 <Plus size={16} />
-                <span>Добавить пользователя</span>
+                <span>Добавить специальность</span>
               </button>
             </div>
 
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Поиск специальностей..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
               </div>
-            ) : (
+              <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <Filter size={16} />
+                <span>Фильтры</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredData(specialties, ['name', 'description']).map((specialty) => (
+                <div key={specialty.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center space-x-2">
+                      <GraduationCap className="text-purple-600" size={20} />
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        specialty.isActive
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {specialty.isActive ? 'Активна' : 'Неактивна'}
+                      </span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEditItem('specialty', specialty)}
+                        className="text-gray-400 hover:text-indigo-600 transition-colors"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteItem('specialty', specialty.id)}
+                        className="text-gray-400 hover:text-red-600 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {specialty.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {specialty.description}
+                  </p>
+                  
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-500">Студентов:</span>
+                    <span className="font-medium text-indigo-600">{specialty.studentsCount}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'news' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Управление новостями</h2>
+                <p className="text-sm text-gray-600">Создавайте и редактируйте новости для студентов</p>
+              </div>
+              <button
+                onClick={() => handleAddItem('news')}
+                className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                <Plus size={16} />
+                <span>Добавить новость</span>
+              </button>
+            </div>
+
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Поиск новостей..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {filteredData(news, ['title', 'content', 'author']).map((article) => (
+                <div key={article.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center space-x-3">
+                      <Newspaper className="text-orange-600" size={20} />
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        article.status === 'published'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {article.status === 'published' ? 'Опубликовано' : 'Черновик'}
+                      </span>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEditItem('news', article)}
+                        className="text-gray-400 hover:text-indigo-600 transition-colors"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteItem('news', article.id)}
+                        className="text-gray-400 hover:text-red-600 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {article.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {article.content.substring(0, 150)}...
+                  </p>
+                  
+                  <div className="flex justify-between items-center text-sm text-gray-500">
+                    <span>Автор: {article.author}</span>
+                    <span>{formatDate(article.date)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'tests' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Управление тестами</h2>
+                <p className="text-sm text-gray-600">Создавайте и редактируйте вопросы для профориентационного теста</p>
+              </div>
+              <button
+                onClick={() => handleAddItem('question')}
+                className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                <Plus size={16} />
+                <span>Добавить вопрос</span>
+              </button>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Статистика теста</h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-indigo-600">{testQuestions.length}</p>
+                  <p className="text-sm text-gray-600">Всего вопросов</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-600">4</p>
+                  <p className="text-sm text-gray-600">Категории</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-orange-600">8923</p>
+                  <p className="text-sm text-gray-600">Прохождений</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-purple-600">30</p>
+                  <p className="text-sm text-gray-600">Мин. на тест</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {testQuestions.map((question, index) => (
+                <div key={question.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <span className="text-indigo-600 font-medium text-sm">{index + 1}</span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {question.question}
+                      </h3>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEditItem('question', question)}
+                        className="text-gray-400 hover:text-indigo-600 transition-colors"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteItem('question', question.id)}
+                        className="text-gray-400 hover:text-red-600 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {question.options.map((option) => (
+                      <div key={option.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div className={`w-3 h-3 rounded-full ${
+                          option.category === 'social' ? 'bg-blue-500' :
+                          option.category === 'technical' ? 'bg-green-500' :
+                          option.category === 'creative' ? 'bg-purple-500' :
+                          'bg-orange-500'
+                        }`}></div>
+                        <span className="text-sm text-gray-700">{option.text}</span>
+                        <span className="text-xs text-gray-500 ml-auto">
+                          {option.category}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'users' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Управление пользователями</h2>
+                <p className="text-sm text-gray-600">Просматривайте и управляйте учетными записями пользователей</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Поиск пользователей..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -257,13 +622,13 @@ const AdminDashboard = () => {
                         Пользователь
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
+                        Контакты
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Роль
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Дата регистрации
+                        Последний вход
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Действия
@@ -271,13 +636,13 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {users.map((user) => (
-                      <tr key={user._id}>
+                    {filteredData(users, ['fullName', 'email', 'phoneNumber']).map((user) => (
+                      <tr key={user.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
-                              <span className="text-white font-medium">
-                                {user.fullName?.charAt(0) || 'U'}
+                            <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                              <span className="text-indigo-600 font-medium">
+                                {user.fullName.charAt(0)}
                               </span>
                             </div>
                             <div className="ml-4">
@@ -285,13 +650,14 @@ const AdminDashboard = () => {
                                 {user.fullName}
                               </div>
                               <div className="text-sm text-gray-500">
-                                {user.phoneNumber}
+                                ID: {user.id}
                               </div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {user.email}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{user.email}</div>
+                          <div className="text-sm text-gray-500">{user.phoneNumber}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -303,17 +669,20 @@ const AdminDashboard = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(user.createdAt)}
+                          {formatDate(user.lastLogin)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
-                            <button className="text-primary-600 hover:text-primary-900">
+                            <button className="text-indigo-600 hover:text-indigo-900 transition-colors">
                               <Eye size={16} />
                             </button>
-                            <button className="text-gray-600 hover:text-gray-900">
+                            <button className="text-gray-600 hover:text-gray-900 transition-colors">
                               <Edit size={16} />
                             </button>
-                            <button className="text-red-600 hover:text-red-900">
+                            <button 
+                              onClick={() => handleDeleteItem('user', user.id)}
+                              className="text-red-600 hover:text-red-900 transition-colors"
+                            >
                               <Trash2 size={16} />
                             </button>
                           </div>
@@ -323,162 +692,130 @@ const AdminDashboard = () => {
                   </tbody>
                 </table>
               </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'tests' && (
-          <div className="card">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Управление тестами
-              </h3>
-              <button className="btn-primary flex items-center space-x-2">
-                <Plus size={16} />
-                <span>Создать тест</span>
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="border border-gray-200 rounded-lg p-4">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h4 className="font-medium text-gray-900">
-                      Профориентационный тест
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      Основной тест для определения профессиональных склонностей
-                    </p>
-                  </div>
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                    Активен
-                  </span>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-                  <div>
-                    <p className="text-gray-600">Вопросов</p>
-                    <p className="font-medium">15</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Категорий</p>
-                    <p className="font-medium">4</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Прохождений</p>
-                    <p className="font-medium">{tests.length}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Время</p>
-                    <p className="font-medium">30 мин</p>
-                  </div>
-                </div>
-
-                <div className="flex space-x-2">
-                  <button className="btn-secondary text-sm">
-                    Редактировать
-                  </button>
-                  <button className="btn-secondary text-sm">
-                    Статистика
-                  </button>
-                  <button className="text-red-600 hover:text-red-700 text-sm">
-                    Деактивировать
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'messages' && (
-          <div className="card">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
-              Сообщения чата
-            </h3>
-            <div className="text-center py-8">
-              <MessageSquare className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-600">Функция в разработке</p>
-            </div>
-          </div>
+        {activeTab === 'statistics' && (
+          <StatisticsPanel />
         )}
 
         {activeTab === 'settings' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                Общие настройки
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Название системы
-                  </label>
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    defaultValue="Талапкер ЖеЗУ"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email для уведомлений
-                  </label>
-                  <input 
-                    type="email" 
-                    className="input-field" 
-                    defaultValue="admin@zhezu.edu.kz"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Максимальное время теста (минуты)
-                  </label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
-                    defaultValue="30"
-                  />
-                </div>
-              </div>
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Настройки системы</h2>
+              <p className="text-sm text-gray-600">Управляйте основными параметрами системы</p>
             </div>
 
-            <div className="card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                Интеграции
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    OpenAI API Key
-                  </label>
-                  <input 
-                    type="password" 
-                    className="input-field" 
-                    placeholder="sk-..."
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    URL сайта ЖеЗУ
-                  </label>
-                  <input 
-                    type="url" 
-                    className="input-field" 
-                    defaultValue="https://zhezu.edu.kz"
-                  />
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                  Общие настройки
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Название системы
+                    </label>
+                    <input 
+                      type="text" 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                      defaultValue="Талапкер ЖеЗУ"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email для уведомлений
+                    </label>
+                    <input 
+                      type="email" 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                      defaultValue="admin@zhezu.edu.kz"
+                    />
+                  </div>
 
-                <button className="btn-primary">
-                  Сохранить настройки
-                </button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Максимальное время теста (минуты)
+                    </label>
+                    <input 
+                      type="number" 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                      defaultValue="30"
+                    />
+                  </div>
+                  
+                  <button className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">
+                    Сохранить настройки
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                  Интеграции
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      OpenAI API Key
+                    </label>
+                    <input 
+                      type="password" 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                      placeholder="sk-..."
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      URL сайта ЖеЗУ
+                    </label>
+                    <input 
+                      type="url" 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                      defaultValue="https://zhezu.edu.kz"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email SMTP сервер
+                    </label>
+                    <input 
+                      type="text" 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                      placeholder="smtp.gmail.com"
+                    />
+                  </div>
+
+                  <button className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                    Сохранить интеграции
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      {showModal && (
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title={
+            modalType === 'specialty' ? (editingItem ? 'Редактировать специальность' : 'Добавить специальность') :
+            modalType === 'news' ? (editingItem ? 'Редактировать новость' : 'Добавить новость') :
+            modalType === 'question' ? (editingItem ? 'Редактировать вопрос' : 'Добавить вопрос') :
+            'Модальное окно'
+          }
+          type={modalType}
+          data={editingItem}
+          onSave={handleSaveItem}
+        />
+      )}
     </div>
   );
 };

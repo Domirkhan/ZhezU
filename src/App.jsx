@@ -13,6 +13,11 @@ import Chat from './pages/Chat/Chat';
 import Profile from './pages/Profile/Profile';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 
+// New Pages
+import ApplicationForm from './pages/Applications/ApplicationForm';
+import MyApplications from './pages/Applications/MyApplications';
+import NewsList from './pages/News/NewsList';
+
 // Set axios base URL
 import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:5000';
@@ -32,11 +37,24 @@ function App() {
             <Route path="/test" element={<Test />} />
             <Route path="/test/results" element={<TestResults />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/news" element={<NewsList />} />
             
             {/* Protected routes */}
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/applications" element={
+              <ProtectedRoute>
+                <MyApplications />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/applications/new" element={
+              <ProtectedRoute>
+                <ApplicationForm />
               </ProtectedRoute>
             } />
             

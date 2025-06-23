@@ -1,0 +1,228 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Calendar, Eye, Tag, ArrowRight } from 'lucide-react';
+import axios from 'axios';
+
+const NewsList = () => {
+  const { t } = useTranslation();
+  const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const categories = [
+    { id: 'all', name: 'Все новости' },
+    { id: 'admission', name: 'Поступление' },
+    { id: 'academic', name: 'Учебный процесс' },
+    { id: 'events', name: 'Мероприятия' },
+    { id: 'announcements', name: 'Объявления' }
+  ];
+
+  useEffect(() => {
+    fetchNews();
+  }, [selectedCategory, currentPage]);
+
+  const fetchNews = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        page: currentPage,
+        limit: 12
+      };
+      
+      if (selectedCategory !== 'all') {
+        params.category = selectedCategory;
+      }
+
+      const response = await axios.get('/api/news', { params });
+      setNews(response.data.news);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('ru-RU', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getCategoryName = (category) => {
+    const cat = categories.find(c => c.id === category);
+    return cat ? cat.name : category;
+  };
+
+  const getCategoryColor = (category) => {
+    switch (category) {
+      case 'admission':
+        return 'bg-blue-100 text-blue-800';
+      case 'academic':
+        return 'bg-green-100 text-green-800';
+      case 'events':
+        return 'bg-purple-100 text-purple-800';
+      case 'announcements':
+        return 'bg-orange-100 text-orange-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Новости ЖеЗУ
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Актуальные новости и объявления Жетысуского университета имени И. Жансугурова
+          </p>
+        </div>
+
+        {/* Category Filter */}
+        <div className="mb-8">
+          <div className="flex flex-wrap justify-center gap-2">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => {
+                  setSelectedCategory(category.id);
+                  setCurrentPage(1);
+                }}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  selectedCategory === category.id
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* News Grid */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+            <p className="text-gray-600 mt-4">Загрузка новостей...</p>
+          </div>
+        ) : news.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">Новости не найдены</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {news.map((article) => (
+                <article key={article._id} className="card hover:shadow-lg transition-shadow">
+                  {/* Image */}
+                  {article.image && (
+                    <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
+                      <img
+                        src={`/uploads/${article.image.filename}`}
+                        alt={article.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.src = 'https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=600';
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Category */}
+                  <div className="mb-3">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(article.category)}`}>
+                      <Tag className="w-3 h-3 mr-1" />
+                      {getCategoryName(article.category)}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h2 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
+                    {article.title}
+                  </h2>
+
+                  {/* Excerpt */}
+                  <p className="text-gray-600 mb-4 line-clamp-3">
+                    {article.excerpt}
+                  </p>
+
+                  {/* Meta */}
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>{formatDate(article.publishedAt || article.createdAt)}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Eye className="w-4 h-4" />
+                        <span>{article.views || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Read More */}
+                  <Link
+                    to={`/news/${article._id}`}
+                    className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    Читать далее
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Link>
+                </article>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center">
+                <nav className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Предыдущая
+                  </button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-2 text-sm font-medium rounded-md ${
+                        currentPage === page
+                          ? 'bg-primary-600 text-white'
+                          : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Следующая
+                  </button>
+                </nav>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default NewsList;

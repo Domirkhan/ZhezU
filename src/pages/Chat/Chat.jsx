@@ -24,36 +24,67 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    
-    if (!inputMessage.trim() || isLoading) return;
+const handleSendMessage = async (e) => {
+  e.preventDefault();
 
-    const userMessage = {
-      id: messages.length + 1,
-      type: 'user',
-      content: inputMessage,
+  if (!inputMessage.trim() || isLoading) return;
+
+  const userMessage = {
+    id: messages.length + 1,
+    type: 'user',
+    content: inputMessage,
+    timestamp: new Date()
+  };
+
+  setMessages(prev => [...prev, userMessage]);
+  setInputMessage('');
+  setIsLoading(true);
+
+  try {
+    // Отправляем историю сообщений на сервер
+    const response = await fetch('http://localhost:5000/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+        // Добавьте Authorization, если используете защищённый маршрут
+      },
+      body: JSON.stringify({
+        messages: [
+          // Можно отправлять только последние 10 сообщений для контекста
+          ...messages.map(m => ({
+            role: m.type === 'user' ? 'user' : 'assistant',
+            content: m.content
+          })),
+          { role: 'user', content: inputMessage }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    const botContent = data.choices?.[0]?.message?.content || 'Ошибка ответа от GPT';
+
+    const botMessage = {
+      id: messages.length + 2,
+      type: 'bot',
+      content: botContent,
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
-    setIsLoading(true);
-
-    // Simulate AI response - in real app, this would call your AI API
-    setTimeout(() => {
-      const botResponse = generateBotResponse(inputMessage);
-      const botMessage = {
+    setMessages(prev => [...prev, botMessage]);
+  } catch (err) {
+    setMessages(prev => [
+      ...prev,
+      {
         id: messages.length + 2,
         type: 'bot',
-        content: botResponse,
+        content: 'Ошибка соединения с сервером',
         timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, botMessage]);
-      setIsLoading(false);
-    }, 1000 + Math.random() * 2000);
-  };
+      }
+    ]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const generateBotResponse = (userInput) => {
     const input = userInput.toLowerCase();

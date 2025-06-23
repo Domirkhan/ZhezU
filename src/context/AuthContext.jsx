@@ -82,10 +82,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (login, password) => {
     try {
       dispatch({ type: 'LOADING' });
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await axios.post('/api/auth/login', { login, password });
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: response.data

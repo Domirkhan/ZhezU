@@ -9,7 +9,7 @@ import path from 'path';
 import fs from 'fs';
 import axios from 'axios';
 import nodemailer from 'nodemailer';
-import path from 'path';
+
 
 // Load environment variables
 dotenv.config();

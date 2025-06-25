@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
-import { Mail, Lock, User, Phone, Eye, EyeOff, MessageSquare } from 'lucide-react';
+import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -15,9 +15,6 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
-  const [step, setStep] = useState(1); // 1: registration, 2: phone verification
-  const [verificationCode, setVerificationCode] = useState('');
-  
   const { t } = useTranslation();
   const { register, loading } = useAuth();
   const navigate = useNavigate();
@@ -27,7 +24,6 @@ const Register = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
-    // Clear error when user starts typing
     if (errors[e.target.name]) {
       setErrors({
         ...errors,
@@ -74,64 +70,27 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
     const result = await register(formData);
     if (result.success) {
-      setStep(2); // Move to phone verification step
+      navigate('/'); // Сразу авторизуем и переходим на главную
     } else {
       setErrors({ general: result.error });
     }
   };
 
-  const handlePhoneVerification = async (e) => {
-    e.preventDefault();
-    
-    if (!verificationCode || verificationCode.length !== 6) {
-      setErrors({ verification: 'Введите 6-значный код подтверждения' });
-      return;
-    }
-
-    try {
-      // Call verification API
-      const response = await fetch('http://localhost:5000/api/auth/verify-phone', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ verificationCode })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        navigate('/');
-      } else {
-        setErrors({ verification: data.message });
-      }
-    } catch (error) {
-      setErrors({ verification: 'Ошибка при подтверждении номера' });
-    }
-  };
-
   const formatPhoneNumber = (value) => {
-    // Remove all non-digits
     const digits = value.replace(/\D/g, '');
-    
-    // Format as +7 (XXX) XXX-XX-XX
     if (digits.startsWith('8')) {
       const formatted = digits.replace('8', '7');
       return `+${formatted.slice(0, 1)} (${formatted.slice(1, 4)}) ${formatted.slice(4, 7)}-${formatted.slice(7, 9)}-${formatted.slice(9, 11)}`;
     } else if (digits.startsWith('7')) {
       return `+${digits.slice(0, 1)} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`;
     }
-    
     return value;
   };
 
@@ -142,74 +101,6 @@ const Register = () => {
       phoneNumber: formatted
     });
   };
-
-  if (step === 2) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <div className="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
-              <MessageSquare className="text-white" size={24} />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900">Подтверждение номера</h2>
-            <p className="mt-2 text-gray-600">
-              Мы отправили SMS с кодом подтверждения на номер<br />
-              <strong>{formData.phoneNumber}</strong>
-            </p>
-          </div>
-
-          <form className="mt-8 space-y-6" onSubmit={handlePhoneVerification}>
-            {errors.verification && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-600 text-sm">{errors.verification}</p>
-              </div>
-            )}
-
-            <div>
-              <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-1">
-                Код подтверждения
-              </label>
-              <input
-                id="verificationCode"
-                name="verificationCode"
-                type="text"
-                maxLength="6"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-                className="input-field text-center text-2xl tracking-widest"
-                placeholder="000000"
-                autoComplete="one-time-code"
-              />
-              <p className="text-sm text-gray-500 mt-2">
-                Введите 6-значный код из SMS
-              </p>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading || verificationCode.length !== 6}
-              className="w-full btn-primary py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Проверка...' : 'Подтвердить номер'}
-            </button>
-
-            <div className="text-center">
-              <button
-                type="button"
-                className="text-primary-600 hover:text-primary-500 text-sm"
-                onClick={() => {
-                  // Resend SMS logic
-                  console.log('Resending SMS...');
-                }}
-              >
-                Отправить код повторно
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -276,9 +167,6 @@ const Register = () => {
               {errors.phoneNumber && (
                 <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
               )}
-              <p className="text-xs text-gray-500 mt-1">
-                На этот номер будет отправлен код подтверждения
-              </p>
             </div>
 
             <div>
@@ -370,25 +258,6 @@ const Register = () => {
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
               )}
-            </div>
-          </div>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <Phone className="h-5 w-5 text-blue-400" />
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-blue-800">
-                  Подтверждение по SMS
-                </h3>
-                <div className="mt-2 text-sm text-blue-700">
-                  <p>
-                    После регистрации на ваш номер телефона будет отправлен код подтверждения.
-                    Это необходимо для безопасности вашего аккаунта.
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
 

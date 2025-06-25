@@ -17,10 +17,10 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import ApplicationForm from './pages/Applications/ApplicationForm';
 import MyApplications from './pages/Applications/MyApplications';
 import NewsList from './pages/News/NewsList';
-
+import NewsDetails from './pages/News/NewsDetails';
 // Set axios base URL
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = 'https://zhezu.onrender.com';
 
 // Import i18n
 import './i18n/i18n';
@@ -38,7 +38,7 @@ function App() {
             <Route path="/test/results" element={<TestResults />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/news" element={<NewsList />} />
-            
+            <Route path="/news/:id" element={<NewsDetails />} />
             {/* Protected routes */}
             <Route path="/profile" element={
               <ProtectedRoute>

@@ -8,6 +8,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import axios from 'axios';
+import nodemailer from 'nodemailer';
 
 // Load environment variables
 dotenv.config();
@@ -55,6 +56,55 @@ const upload = multer({
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
 
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 465,
+  secure: true, // true для 465, false для других портов
+  auth: {
+    user: process.env.SMTP_USER || 'your_email@gmail.com',
+    pass: process.env.SMTP_PASS || 'your_app_password'
+  }
+});
+const sendApplicationStatusEmail = async (to, studentName, status, application) => {
+  const statusLabels = {
+    draft: 'Черновик',
+    submitted: 'Подана',
+    under_review: 'На рассмотрении',
+    accepted: 'Принята',
+    rejected: 'Отклонена'
+  };
+  const subject = `Обновление статуса заявки - ${statusLabels[status]}`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
+        <h1 style="color: white; margin: 0;">Талапкер ЖеЗУ</h1>
+      </div>
+      <div style="padding: 30px; background: #f8f9fa;">
+        <h2 style="color: #333;">Уважаемый(ая) ${studentName}!</h2>
+        <p style="font-size: 16px; line-height: 1.6; color: #555;">
+          Статус вашей заявки изменился: <strong>${statusLabels[status]}</strong>
+        </p>
+        <p style="font-size: 14px; color: #888; margin-top: 30px;">
+          Если у вас есть вопросы, обращайтесь в приемную комиссию:<br>
+          📧 admission@zhezu.edu.kz<br>
+          📞 +7 (7282) 23-88-49
+        </p>
+      </div>
+      <div style="background: #333; padding: 20px; text-align: center;">
+        <p style="color: #ccc; margin: 0; font-size: 12px;">
+          © 2024 Западно-Казахстанский Университет имени М. Утемисова
+        </p>
+      </div>
+    </div>
+  `;
+console.log('Sending email to:', to, 'subject:', subject);
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM || '"Талапкер ЖеЗУ" <your_email@gmail.com>',
+    to,
+    subject,
+    html
+  });
+};
 // MongoDB connection
 const connectDB = async () => {
   try {
@@ -728,7 +778,28 @@ app.get('/api/specialities', async (req, res) => {
     res.status(500).json({ message: 'Внутренняя ошибка сервера' });
   }
 });
+app.put('/api/admin/applications/:id/status', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const application = await Application.findByIdAndUpdate(
+      req.params.id,
+      { status, reviewedAt: new Date(), reviewedBy: req.user.userId },
+      { new: true }
+    ).populate('userId', 'fullName email');
 
+    if (!application) {
+      return res.status(404).json({ message: 'Заявка не найдена' });
+    }
+
+    // Здесь вызывайте функцию отправки email
+    await sendApplicationStatusEmail(application.userId.email, application.userId.fullName, status, application);
+
+    res.json({ message: 'Статус заявки обновлен' });
+  } catch (error) {
+    console.error('Update application status error:', error);
+    res.status(500).json({ message: 'Внутренняя ошибка сервера' });
+  }
+});
 app.post('/api/admin/specialities', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const speciality = new Speciality(req.body);
@@ -933,12 +1004,15 @@ app.put('/api/admin/applications/:id/status', authenticateToken, requireAdmin, a
         } : {}
       },
       { new: true }
-    );
-    
+    ).populate('userId', 'fullName email');
+
     if (!application) {
       return res.status(404).json({ message: 'Заявка не найдена' });
     }
-    
+
+    // Добавьте вызов здесь:
+    await sendApplicationStatusEmail(application.userId.email, application.userId.fullName, status, application);
+
     res.json({ message: 'Статус заявки обновлен' });
   } catch (error) {
     console.error('Update application status error:', error);
@@ -1245,6 +1319,8 @@ app.post('/chat', async (req, res) => {
     res.status(500).json({ error: 'OpenRouter API error' });
   }
 });
+app.use('/uploads', express.static('uploads'));
+
 // Health check route
 app.get('/api/health', (req, res) => {
   res.json({ 

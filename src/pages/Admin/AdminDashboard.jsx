@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Users,
   FileText,
@@ -16,10 +17,14 @@ import {
   BarChart3,
   Search,
   Filter,
-  X
+  X,
+  Clock,
+  CheckCircle, 
+  XCircle 
 } from 'lucide-react';
 import StatisticsPanel from '../../components/StatisticsPanel';
 import Modal from '../../components/Modal';
+import ApplicationModal from '../Applications/ApplicationModal';
 
 const AdminDashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -27,6 +32,10 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [modalType, setModalType] = useState('');
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [applications, setApplications] = useState([]);
+const [statusFilter, setStatusFilter] = useState('all');
+const [showApplicationModal, setShowApplicationModal] = useState(false);
+const [selectedApplication, setSelectedApplication] = useState(null);
 
   // Mock data - in real app, this would come from API
   const [stats, setStats] = useState({
@@ -37,7 +46,65 @@ const AdminDashboard = ({ user, onLogout }) => {
     todayRegistrations: 12,
     activeTests: 156
   });
+// Конфиг для статусов
+const statusConfig = {
+  draft:   { label: 'Черновик', color: 'gray', icon: Clock },
+  submitted: { label: 'Подана', color: 'blue', icon: Clock },
+  under_review: { label: 'На рассмотрении', color: 'yellow', icon: Eye },
+  accepted: { label: 'Принята', color: 'green', icon: CheckCircle },
+  rejected: { label: 'Отклонена', color: 'red', icon: XCircle }
+};
+useEffect(() => {
+  if (activeTab === 'applications') fetchApplications();
+}, [activeTab]);
 
+const fetchApplications = async () => {
+  try {
+    const response = await axios.get('/api/admin/applications', {
+  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+});
+    setApplications(response.data.applications || []);
+  } catch (error) {
+    console.error('Ошибка загрузки заявок:', error);
+  }
+};
+const filteredApplications = () => {
+  let filtered = applications;
+  if (statusFilter !== 'all') {
+    filtered = filtered.filter(app => app.status === statusFilter);
+  }
+  if (searchTerm) {
+    filtered = filtered.filter(app =>
+      (app.studentName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (app.email || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+  return filtered;
+};
+const handleStatusChange = async (applicationId, newStatus) => {
+  try {
+    // Отправляем запрос на сервер для смены статуса и отправки email
+    await axios.put(
+      `/api/admin/applications/${applicationId}/status`,
+      { status: newStatus },
+      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+    );
+    // Обновляем локально
+    setApplications(applications =>
+      applications.map(app =>
+        app._id === applicationId ? { ...app, status: newStatus } : app
+      )
+    );
+    alert(`Статус заявки изменен на "${statusConfig[newStatus].label}". Уведомление отправлено.`);
+  } catch (error) {
+    alert('Ошибка при смене статуса');
+    console.error(error);
+  }
+};
+const handleViewApplication = (application) => {
+  setSelectedApplication(application);
+  setShowApplicationModal(true);
+};
   const [specialties, setSpecialties] = useState([
     { id: 1, name: 'Информационные технологии', description: 'Разработка программного обеспечения, системное администрирование', studentsCount: 324, isActive: true },
     { id: 2, name: 'Медицина', description: 'Лечебное дело, стоматология, фармацевтика', studentsCount: 892, isActive: true },
@@ -92,6 +159,7 @@ const AdminDashboard = ({ user, onLogout }) => {
 
   const tabs = [
     { id: 'overview', name: 'Обзор', icon: TrendingUp },
+    { id: 'applications', name: 'Заявки', icon: FileText },
     { id: 'specialties', name: 'Специальности', icon: GraduationCap },
     { id: 'news', name: 'Новости', icon: Newspaper },
     { id: 'tests', name: 'Тесты', icon: FileText },
@@ -152,37 +220,96 @@ const AdminDashboard = ({ user, onLogout }) => {
     }
   };
 
-  const handleSaveItem = (type, data) => {
-    const now = new Date().toISOString();
-
+const handleSaveItem = async (type, data) => {
+  try {
     switch (type) {
-      case 'specialty':
-        if (editingItem) {
-          setSpecialties(specialties.map(s => s.id === editingItem.id ? { ...s, ...data } : s));
-        } else {
-          const newSpecialty = {
-            id: Date.now(),
-            ...data,
-            studentsCount: 0,
-            isActive: true
-          };
-          setSpecialties([...specialties, newSpecialty]);
-        }
-        break;
+     case 'specialty':
+  if (editingItem) {
+    // Редактирование специальности
+    const response = await axios.put(
+      `/api/admin/specialities/${editingItem._id || editingItem.id}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }
+    );
+    setSpecialties(specialties.map(s =>
+      (s._id === editingItem._id || s.id === editingItem.id)
+        ? response.data.speciality
+        : s
+    ));
+  } else {
+    // Создание специальности
+    const response = await axios.post(
+      '/api/admin/specialities',
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }
+    );
+    setSpecialties([...specialties, response.data.speciality]);
+  }
+  break;
+
       case 'news':
         if (editingItem) {
-          setNews(news.map(n => n.id === editingItem.id ? { ...n, ...data } : n));
+          // Редактирование новости (без смены фото)
+          const response = await axios.put(
+            `/api/admin/news/${editingItem._id || editingItem.id}`,
+            {
+              title: data.title,
+              titleKk: data.titleKk || data.title,
+              titleEn: data.titleEn || data.title,
+              content: data.content,
+              contentKk: data.contentKk || data.content,
+              contentEn: data.contentEn || data.content,
+              excerpt: data.excerpt || data.content?.substring(0, 150) || '',
+              category: data.category || 'admission',
+              status: data.status || 'draft',
+              isPublished: data.status === 'published',
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+              },
+            }
+          );
+          setNews(news.map(n => (n._id === editingItem._id ? response.data.news : n)));
         } else {
-          const newNews = {
-            id: Date.now(),
-            ...data,
-            author: user?.name || user?.fullName || 'Админ',
-            date: now,
-            status: 'published'
-          };
-          setNews([...news, newNews]);
+          // Создание новости с поддержкой фото
+          const formDataToSend = new FormData();
+          formDataToSend.append('title', data.title);
+          formDataToSend.append('titleKk', data.titleKk || data.title);
+          formDataToSend.append('titleEn', data.titleEn || data.title);
+          formDataToSend.append('content', data.content);
+          formDataToSend.append('contentKk', data.contentKk || data.content);
+          formDataToSend.append('contentEn', data.contentEn || data.content);
+          formDataToSend.append('excerpt', data.excerpt || data.content?.substring(0, 150) || '');
+          formDataToSend.append('category', data.category || 'admission');
+          formDataToSend.append('status', data.status || 'draft');
+          formDataToSend.append('isPublished', data.status === 'published');
+          if (data.image) {
+            formDataToSend.append('image', data.image);
+          }
+
+          const response = await axios.post(
+            '/api/admin/news',
+            formDataToSend,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'multipart/form-data'
+              },
+            }
+          );
+          setNews([...news, response.data.news]);
         }
         break;
+
       case 'question':
         if (editingItem) {
           setTestQuestions(testQuestions.map(q => q.id === editingItem.id ? { ...q, ...data } : q));
@@ -194,13 +321,17 @@ const AdminDashboard = ({ user, onLogout }) => {
           setTestQuestions([...testQuestions, newQuestion]);
         }
         break;
+
       default:
         break;
     }
-
-    setShowModal(false);
-    setEditingItem(null);
-  };
+  } catch (error) {
+    alert('Ошибка при сохранении данных');
+    console.error(error);
+  }
+  setShowModal(false);
+  setEditingItem(null);
+};
 
   const filteredData = (data, searchFields) => {
     if (!searchTerm) return data;
@@ -346,7 +477,125 @@ const AdminDashboard = ({ user, onLogout }) => {
             </div>
           </div>
         )}
+{activeTab === 'applications' && (
+  <div className="space-y-6">
+    <div className="flex justify-between items-center">
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900">Управление заявками</h2>
+        <p className="text-sm text-gray-600">Просматривайте и управляйте заявками студентов</p>
+      </div>
+    </div>
 
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 sm:space-x-4">
+      <div className="flex-1 relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+        <input
+          type="text"
+          placeholder="Поиск заявок..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
+      <select
+        value={statusFilter}
+        onChange={(e) => setStatusFilter(e.target.value)}
+        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        <option value="all">Все статусы</option>
+        <option value="draft">Черновик</option>
+        <option value="submitted">Подана</option>
+        <option value="under_review">На рассмотрении</option>
+        <option value="accepted">Принята</option>
+        <option value="rejected">Отклонена</option>
+      </select>
+    </div>
+
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Студент</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Балл теста</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата подачи</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredApplications().map((application) => {
+              const StatusIcon = statusConfig[application.status]?.icon || Clock;
+              return (
+                <tr key={application._id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <span className="text-indigo-600 font-medium">
+                          {application.studentName?.charAt(0) || ''}
+                        </span>
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {application.userId?.fullName}
+
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {application.userId?.email}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <select
+                      value={application.status}
+                      onChange={e => handleStatusChange(application._id, e.target.value)}
+                      className="border rounded px-2 py-1"
+                    >
+                      <option value="draft">Черновик</option>
+                      <option value="submitted">Подана</option>
+                      <option value="under_review">На рассмотрении</option>
+                      <option value="accepted">Принята</option>
+                      <option value="rejected">Отклонена</option>
+                    </select>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {application.testScore}/100
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatDate(application.submittedAt)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex space-x-2">
+                     <button 
+                      onClick={() => handleViewApplication(application)}
+                      className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                      title="Просмотреть заявку"
+                    >
+                      
+                      <Eye size={16} />
+                    </button>
+                      <button 
+                        onClick={() => handleDeleteItem('application', application._id)}
+                        className="text-red-600 hover:text-red-900 transition-colors"
+                        title="Удалить заявку"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {/* Модальное окно для просмотра заявки можно реализовать отдельно */}
+  </div>
+)}
         {activeTab === 'specialties' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -382,7 +631,7 @@ const AdminDashboard = ({ user, onLogout }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredData(specialties, ['name', 'description']).map((specialty) => (
-                <div key={specialty.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div key={specialty._id || specialty.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-2">
                       <GraduationCap className="text-purple-600" size={20} />
@@ -458,7 +707,7 @@ const AdminDashboard = ({ user, onLogout }) => {
 
             <div className="space-y-4">
               {filteredData(news, ['title', 'content', 'author']).map((article) => (
-                <div key={article.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div key={article._id || article.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-3">
                       <Newspaper className="text-orange-600" size={20} />
@@ -494,7 +743,7 @@ const AdminDashboard = ({ user, onLogout }) => {
                   </p>
                   
                   <div className="flex justify-between items-center text-sm text-gray-500">
-                    <span>Автор: {article.author}</span>
+                   <span>Автор: {article.author?.fullName || 'Админ'}</span>
                     <span>{formatDate(article.date)}</span>
                   </div>
                 </div>
@@ -816,6 +1065,15 @@ const AdminDashboard = ({ user, onLogout }) => {
           onSave={handleSaveItem}
         />
       )}
+     {showApplicationModal && selectedApplication && (
+  <ApplicationModal
+    isOpen={showApplicationModal}
+    onClose={() => setShowApplicationModal(false)}
+    application={selectedApplication}
+    statusConfig={statusConfig} // ← добавить!
+    onStatusChange={handleStatusChange} // если нужно
+  />
+)}
     </div>
   );
 };

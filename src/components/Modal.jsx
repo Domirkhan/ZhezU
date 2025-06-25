@@ -21,6 +21,14 @@ const Modal = ({ isOpen, onClose, title, type, data, onSave }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const submitData = { ...formData };
+     if (type === 'specialty') {
+    submitData.requirements = (formData.requirements || '').split(',').map(s => s.trim()).filter(Boolean);
+    submitData.subjects = (formData.subjects || '').split(',').map(s => s.trim()).filter(Boolean);
+    submitData.duration = Number(formData.duration);
+    submitData.tuitionFee = Number(formData.tuitionFee);
+    submitData.grantPlaces = Number(formData.grantPlaces);
+    submitData.paidPlaces = Number(formData.paidPlaces);
+  }
     if (type === 'question') {
       submitData.options = options;
     }
@@ -58,47 +66,207 @@ const Modal = ({ isOpen, onClose, title, type, data, onSave }) => {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {type === 'specialty' && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Название специальности
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name || ''}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Например: Информационные технологии"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Описание
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={formData.description || ''}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Краткое описание специальности"
-                />
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={formData.isActive !== false}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
-                  Активная специальность
-                </label>
-              </div>
-            </>
-          )}
+  <>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Название специальности
+      </label>
+      <input
+        type="text"
+        required
+        value={formData.name || ''}
+        onChange={e => setFormData({ ...formData, name: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        placeholder="Например: Информационные технологии"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Название на казахском
+      </label>
+      <input
+        type="text"
+        required
+        value={formData.nameKk || ''}
+        onChange={e => setFormData({ ...formData, nameKk: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        placeholder="Мамандық атауы (қаз)"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Название на английском
+      </label>
+      <input
+        type="text"
+        required
+        value={formData.nameEn || ''}
+        onChange={e => setFormData({ ...formData, nameEn: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        placeholder="Specialty name (en)"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Код специальности
+      </label>
+      <input
+        type="text"
+        required
+        value={formData.code || ''}
+        onChange={e => setFormData({ ...formData, code: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        placeholder="B123"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Факультет
+      </label>
+      <input
+        type="text"
+        required
+        value={formData.faculty || ''}
+        onChange={e => setFormData({ ...formData, faculty: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        placeholder="Факультет"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Степень
+      </label>
+      <select
+        required
+        value={formData.degree || ''}
+        onChange={e => setFormData({ ...formData, degree: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+      >
+        <option value="">Выберите степень</option>
+        <option value="bachelor">Бакалавр</option>
+        <option value="master">Магистр</option>
+        <option value="phd">PhD</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Срок обучения (лет)
+      </label>
+      <input
+        type="number"
+        required
+        value={formData.duration || ''}
+        onChange={e => setFormData({ ...formData, duration: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        placeholder="4"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Языки обучения
+      </label>
+      <select
+        multiple
+        required
+        value={formData.language || []}
+        onChange={e => setFormData({ ...formData, language: Array.from(e.target.selectedOptions, o => o.value) })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+      >
+        <option value="kk">Казахский</option>
+        <option value="ru">Русский</option>
+        <option value="en">Английский</option>
+      </select>
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Стоимость обучения
+      </label>
+      <input
+        type="number"
+        required
+        value={formData.tuitionFee || ''}
+        onChange={e => setFormData({ ...formData, tuitionFee: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        placeholder="500000"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Грантовых мест
+      </label>
+      <input
+        type="number"
+        required
+        value={formData.grantPlaces || ''}
+        onChange={e => setFormData({ ...formData, grantPlaces: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        placeholder="20"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Платных мест
+      </label>
+      <input
+        type="number"
+        required
+        value={formData.paidPlaces || ''}
+        onChange={e => setFormData({ ...formData, paidPlaces: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        placeholder="30"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Требования (через запятую)
+      </label>
+      <textarea
+        required
+        value={formData.requirements || ''}
+        onChange={e => setFormData({ ...formData, requirements: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        placeholder="Требования через запятую"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Профильные предметы (через запятую)
+      </label>
+      <textarea
+        required
+        value={formData.subjects || ''}
+        onChange={e => setFormData({ ...formData, subjects: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+        placeholder="Профильные предметы через запятую"
+      />
+    </div>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Описание
+      </label>
+      <textarea
+        required
+        rows={3}
+        value={formData.description || ''}
+        onChange={e => setFormData({ ...formData, description: e.target.value })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        placeholder="Краткое описание специальности"
+      />
+    </div>
+    <div className="flex items-center">
+      <input
+        type="checkbox"
+        id="isActive"
+        checked={formData.isActive !== false}
+        onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
+        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+      />
+      <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+        Активная специальность
+      </label>
+    </div>
+  </>
+)}
 
           {type === 'news' && (
             <>
@@ -117,6 +285,17 @@ const Modal = ({ isOpen, onClose, title, type, data, onSave }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Фото новости
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setFormData({ ...formData, image: e.target.files[0] })}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Содержание
                 </label>
                 <textarea
@@ -127,6 +306,22 @@ const Modal = ({ isOpen, onClose, title, type, data, onSave }) => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Полный текст новости"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Категория
+                </label>
+                <select
+                  value={formData.category || 'admission'}
+                  onChange={e => setFormData({ ...formData, category: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="admission">Поступление</option>
+                  <option value="academic">Учёба</option>
+                  <option value="events">События</option>
+                  <option value="announcements">Объявления</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

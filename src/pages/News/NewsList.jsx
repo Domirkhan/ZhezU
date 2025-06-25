@@ -134,7 +134,7 @@ const NewsList = () => {
                   {article.image && (
                     <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
                       <img
-                        src={`/uploads/${article.image.filename}`}
+                        src={`/uploads/documents/${article.image.filename}`}
                         alt={article.title}
                         className="w-full h-full object-cover"
                         onError={(e) => {

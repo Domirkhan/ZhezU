@@ -26,14 +26,14 @@ const NewsDetails = () => {
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
-        {news.image && (
-        <div className="mb-6 rounded-xl overflow-hidden">
+       {news.image && (
+          <div className="mb-6 rounded-xl overflow-hidden">
             <img
-            src={`/uploads/documents/${news.image.filename}`}
-            alt={news.title}
-            className="w-full object-cover max-h-96"
+              src={`/uploads/documents/${news.image.filename}`}
+              alt={news.title}
+              className="w-full object-cover max-h-96"
             />
-        </div>
+          </div>
         )}
       <h1 className="text-3xl font-bold mb-4">{news.title}</h1>
       <div className="text-gray-500 mb-2">

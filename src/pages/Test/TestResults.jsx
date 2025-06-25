@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Download, RotateCcw, Award, BookOpen, Users, Palette } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-
+import axios from 'axios';
 const TestResults = () => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -89,10 +89,30 @@ const TestResults = () => {
     percentage: cat.percentage
   }));
 
-  const handleDownloadPDF = () => {
-    // PDF generation logic would go here
-    console.log('Generating PDF...');
-  };
+const handleDownloadPDF = async () => {
+  try {
+    const res = await axios.post(
+      '/api/test/generate-pdf',
+      {
+        categoryScores,
+        totalQuestions,
+        answeredQuestions,
+        // Можно добавить pieData/barData если нужно
+      },
+      { responseType: 'blob' }
+    );
+    // Скачать PDF
+    const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'test-results.pdf');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (e) {
+    alert('Ошибка при генерации PDF');
+  }
+};
 
   const handleRetakeTest = () => {
     navigate('/test');

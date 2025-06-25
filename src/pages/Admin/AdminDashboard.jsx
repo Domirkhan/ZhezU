@@ -162,10 +162,10 @@ const handleViewApplication = (application) => {
     { id: 'applications', name: 'Заявки', icon: FileText },
     { id: 'specialties', name: 'Специальности', icon: GraduationCap },
     { id: 'news', name: 'Новости', icon: Newspaper },
-    { id: 'tests', name: 'Тесты', icon: FileText },
+   
     { id: 'users', name: 'Пользователи', icon: Users },
     { id: 'statistics', name: 'Статистика', icon: BarChart3 },
-    { id: 'settings', name: 'Настройки', icon: Settings }
+    
   ];
 
   const StatCard = ({ title, value, icon: Icon, color = 'indigo', trend = null }) => (
@@ -256,30 +256,58 @@ const handleSaveItem = async (type, data) => {
   break;
 
       case 'news':
-        if (editingItem) {
-          // Редактирование новости (без смены фото)
-          const response = await axios.put(
-            `/api/admin/news/${editingItem._id || editingItem.id}`,
-            {
-              title: data.title,
-              titleKk: data.titleKk || data.title,
-              titleEn: data.titleEn || data.title,
-              content: data.content,
-              contentKk: data.contentKk || data.content,
-              contentEn: data.contentEn || data.content,
-              excerpt: data.excerpt || data.content?.substring(0, 150) || '',
-              category: data.category || 'admission',
-              status: data.status || 'draft',
-              isPublished: data.status === 'published',
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-              },
-            }
-          );
-          setNews(news.map(n => (n._id === editingItem._id ? response.data.news : n)));
-        } else {
+  if (editingItem) {
+    if (data.image && typeof data.image !== 'string') {
+      // Если фото меняется, отправляем FormData
+      const formDataToSend = new FormData();
+      formDataToSend.append('title', data.title);
+      formDataToSend.append('titleKk', data.titleKk || data.title);
+      formDataToSend.append('titleEn', data.titleEn || data.title);
+      formDataToSend.append('content', data.content);
+      formDataToSend.append('contentKk', data.contentKk || data.content);
+      formDataToSend.append('contentEn', data.contentEn || data.content);
+      formDataToSend.append('excerpt', data.excerpt || data.content?.substring(0, 150) || '');
+      formDataToSend.append('category', data.category || 'admission');
+      formDataToSend.append('status', data.status || 'draft');
+      formDataToSend.append('isPublished', data.status === 'published');
+      formDataToSend.append('image', data.image);
+
+      const response = await axios.put(
+        `/api/admin/news/${editingItem._id || editingItem.id}`,
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data'
+          },
+        }
+      );
+      setNews(news.map(n => (n._id === editingItem._id ? response.data.news : n)));
+    } else {
+      // Без смены фото — обычный JSON
+      const response = await axios.put(
+        `/api/admin/news/${editingItem._id || editingItem.id}`,
+        {
+          title: data.title,
+          titleKk: data.titleKk || data.title,
+          titleEn: data.titleEn || data.title,
+          content: data.content,
+          contentKk: data.contentKk || data.content,
+          contentEn: data.contentEn || data.content,
+          excerpt: data.excerpt || data.content?.substring(0, 150) || '',
+          category: data.category || 'admission',
+          status: data.status || 'draft',
+          isPublished: data.status === 'published',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      setNews(news.map(n => (n._id === editingItem._id ? response.data.news : n)));
+    }
+   } else {
           // Создание новости с поддержкой фото
           const formDataToSend = new FormData();
           formDataToSend.append('title', data.title);
@@ -301,7 +329,7 @@ const handleSaveItem = async (type, data) => {
             formDataToSend,
             {
               headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
+               Authorization: `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'multipart/form-data'
               },
             }
@@ -376,7 +404,7 @@ const handleSaveItem = async (type, data) => {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
               <StatCard
                 title="Пользователи"
                 value={stats.totalUsers}
@@ -403,12 +431,7 @@ const handleSaveItem = async (type, data) => {
                 icon={Newspaper}
                 color="orange"
               />
-              <StatCard
-                title="Активные тесты"
-                value={stats.activeTests}
-                icon={Award}
-                color="blue"
-              />
+             
               <StatCard
                 title="Регистраций сегодня"
                 value={stats.todayRegistrations}

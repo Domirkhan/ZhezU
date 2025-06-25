@@ -86,26 +86,7 @@ const StatisticsPanel = () => {
           <h2 className="text-xl font-semibold text-gray-900">Статистика и аналитика</h2>
           <p className="text-sm text-gray-600 mt-1">Подробная статистика использования системы</p>
         </div>
-        <div className="mt-4 sm:mt-0 flex items-center space-x-3">
-          <select
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option value="week">Неделя</option>
-            <option value="month">Месяц</option>
-            <option value="quarter">Квартал</option>
-            <option value="year">Год</option>
-          </select>
-          <button className="flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-            <RefreshCw size={16} />
-            <span>Обновить</span>
-          </button>
-          <button className="flex items-center space-x-2 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-            <Download size={16} />
-            <span>Экспорт</span>
-          </button>
-        </div>
+        
       </div>
 
       {/* Key Metrics */}

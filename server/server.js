@@ -9,7 +9,8 @@ import path from 'path';
 import fs from 'fs';
 import axios from 'axios';
 import nodemailer from 'nodemailer';
-
+import * as cheerio from 'cheerio';
+import PDFDocument from 'pdfkit';
 
 // Load environment variables
 dotenv.config();
@@ -17,17 +18,20 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const allowedOrigins = [
+  'https://zhezu.onrender.com',
+  'http://localhost:5173',
+  'https://zhezu-front.onrender.com/',
+  'http://localhost:5000'
+
+];
 // Middleware
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
 }));
 app.use(express.json());
-const allowedOrigins = [
-  'https://zhezu.onrender.com',
-  'http://localhost:5173',
-  'https://zhezu-front.onrender.com/'
-];
+
 
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, 'dist')));
@@ -1200,7 +1204,14 @@ app.put('/api/admin/questions/:id', authenticateToken, requireAdmin, async (req,
     res.status(500).json({ message: 'Внутренняя ошибка сервера' });
   }
 });
-
+app.get('/api/test/history', authenticateToken, async (req, res) => {
+  try {
+    const tests = await TestResult.find({ userId: req.user.userId }).sort({ completedAt: -1 });
+    res.json(tests);
+  } catch (error) {
+    res.status(500).json({ message: 'Ошибка получения истории тестов' });
+  }
+});
 // Test Routes (updated)
 app.post('/api/test/submit', authenticateToken, async (req, res) => {
   try {
@@ -1216,17 +1227,16 @@ app.post('/api/test/submit', authenticateToken, async (req, res) => {
       isActive: true,
       // Add logic to match categories with specialities
     }).limit(5);
-
-    const testResult = new TestResult({
-      userId: req.user.userId,
-      answers,
-      categoryScores: new Map(Object.entries(categoryScores)),
-      recommendedSpecialities: recommendedSpecialities.map(s => s._id),
-      totalQuestions,
-      answeredQuestions
-    });
-
-    await testResult.save();
+const testResult = new TestResult({
+  userId: req.user.userId,
+  answers,
+  categoryScores: new Map(Object.entries(categoryScores)),
+  recommendedSpecialities: recommendedSpecialities.map(s => s._id),
+  totalQuestions,
+  answeredQuestions,
+  completedAt: new Date()
+});
+await testResult.save();
 
     res.json({
       message: 'Результаты теста сохранены',
@@ -1240,12 +1250,106 @@ app.post('/api/test/submit', authenticateToken, async (req, res) => {
 });
 
 // Chat Routes (updated)
+async function fetchBachelorPrograms() {
+  const url = 'https://zhezu.edu.kz/ru/bachelor-program/';
+  const { data } = await axios.get(url);
+  const $ = cheerio.load(data);
+  const programs = [];
+  $('.program-card, .bachelor-program__item').each((i, el) => {
+    programs.push({
+      title: $(el).find('.program-card__title, .bachelor-program__title').text().trim(),
+      desc: $(el).find('.program-card__desc, .bachelor-program__desc').text().trim(),
+      link: $(el).find('a').attr('href')
+    });
+  });
+  return programs;
+}
+
+async function fetchAdmissionRules() {
+  const url = 'https://zhezu.edu.kz/ru/admission-rules/';
+  const { data } = await axios.get(url);
+  const $ = cheerio.load(data);
+  // Можно возвращать основной текст или структурировать по разделам
+  return $('.content, .admission-rules').text().trim();
+}
+
+async function fetchTuitionFees() {
+  const url = 'https://zhezu.edu.kz/ru/tuition-fees/';
+  const { data } = await axios.get(url);
+  const $ = cheerio.load(data);
+  // Пример: ищем таблицу с ценами
+  const fees = [];
+  $('table tr').each((i, el) => {
+    const cols = $(el).find('td');
+    if (cols.length >= 2) {
+      fees.push({
+        program: $(cols[0]).text().trim(),
+        price: $(cols[1]).text().trim()
+      });
+    }
+  });
+  return fees;
+}
+async function fetchAdmissionCommitteeInfo() {
+  const url = 'https://zhezu.edu.kz/ru/admission-committee/';
+  const { data } = await axios.get(url);
+  const $ = cheerio.load(data);
+  // Пример: получить основной текст или важные блоки
+  const info = $('.content, .admission-committee').text().trim();
+  return info || 'Не удалось получить информацию о сроках и порядке подачи документов. Пожалуйста, посетите https://zhezu.edu.kz/ru/admission-committee/';
+}
+// --- Интеграция в чат-бота ---
+const generateEnhancedBotResponse = async (message) => {
+  const lower = message.toLowerCase();
+ // 1. Вопросы о сроках подачи документов
+  if (
+    lower.includes('когда подавать документы') ||
+    lower.includes('сроки подачи документов') ||
+    lower.includes('дедлайн') ||
+    lower.includes('прием документов')
+  ) {
+    const info = await fetchAdmissionCommitteeInfo();
+    return info.length > 1000
+      ? info.slice(0, 1000) + '... Подробнее: https://zhezu.edu.kz/ru/admission-committee/'
+      : info;
+  }
+  // 1. Ключевые вопросы — только парсер!
+  if (lower.includes('специальност')) {
+    const programs = await fetchBachelorPrograms();
+    if (programs.length) {
+      return 'Список специальностей ЖезУ:\n' + programs.map(p => `• ${p.title}`).join('\n');
+    }
+    return 'Не удалось получить список специальностей.';
+  }
+  if (lower.includes('правила поступлен')) {
+    const rules = await fetchAdmissionRules();
+    return rules ? `Правила поступления в ЖезУ:\n${rules.slice(0, 1000)}...` : 'Не удалось получить правила поступления.';
+  }
+  if (lower.includes('стоимость') || lower.includes('цена')) {
+    const fees = await fetchTuitionFees();
+    if (fees.length) {
+      return 'Стоимость обучения в ЖезУ:\n' + fees.map(f => `${f.program}: ${f.price}`).join('\n');
+    }
+    return 'Не удалось получить стоимость обучения.';
+  }
+
+  // 2. Фильтрация нерелевантных тем
+  const forbiddenWords = [
+    'visa', 'виза', 'capacity building', 'wechat', 'facebook', 'платная реклама', 'ad', 'реклама'
+  ];
+  if (forbiddenWords.some(w => lower.includes(w))) {
+    return 'Пожалуйста, задавайте вопросы, связанные с поступлением в Жезказганский университет (ZheZU), расположенный в Казахстане.';
+  }
+
+  // 3. Общий шаблон для остальных вопросов
+  return "Пожалуйста, уточните ваш вопрос о поступлении, специальностях или обучении в Жезказганском университете (ZheZU).";
+};
+
+// В /api/chat/message используйте await generateEnhancedBotResponse(message)
 app.post('/api/chat/message', authenticateToken, async (req, res) => {
   try {
     const { message } = req.body;
-
-    // Enhanced AI response logic
-    const response = generateEnhancedBotResponse(message);
+    const response = await generateEnhancedBotResponse(message);
     const category = categorizeMessage(message);
 
     const chatMessage = new ChatMessage({
@@ -1282,12 +1386,57 @@ const categorizeMessage = (message) => {
   
   return 'general';
 };
+app.post('/api/test/generate-pdf', authenticateToken, async (req, res) => {
+  try {
+    const { categoryScores, totalQuestions, answeredQuestions } = req.body;
+    // 1. Генерируем PDF
+    const doc = new PDFDocument();
+    let buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', async () => {
+      const pdfBuffer = Buffer.concat(buffers);
 
-const generateEnhancedBotResponse = (message) => {
-  // This would integrate with OpenAI or other AI service
-  // For now, return enhanced static responses
-  return "Спасибо за ваш вопрос! Я обработаю его и предоставлю подробный ответ.";
-};
+      // 2. Сохраняем PDF в БД (например, в TestResult)
+      const testResult = await TestResult.findOneAndUpdate(
+        { userId: req.user.userId },
+        { pdfBuffer },
+        { new: true }
+      );
+
+      // 3. Отправляем PDF клиенту
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename="test-results.pdf"',
+      });
+      res.send(pdfBuffer);
+    });
+
+    // Пример простого PDF (добавьте графики через svg/png или html-to-pdf)
+    doc.fontSize(20).text('Результаты теста', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(14).text(`Всего вопросов: ${totalQuestions}`);
+    doc.text(`Отвечено: ${answeredQuestions}`);
+    doc.moveDown();
+    Object.entries(categoryScores).forEach(([cat, score]) => {
+      doc.text(`${cat}: ${score}`);
+    });
+    doc.end();
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'Ошибка генерации PDF' });
+  }
+});
+app.get('/api/test/pdf/:id', authenticateToken, async (req, res) => {
+  const testResult = await TestResult.findById(req.params.id);
+  if (!testResult || !testResult.pdfBuffer) {
+    return res.status(404).send('PDF не найден');
+  }
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': 'attachment; filename="test-results.pdf"',
+  });
+  res.send(testResult.pdfBuffer);
+});
 
 // Admin Routes (updated)
 app.get('/api/admin/dashboard', authenticateToken, requireAdmin, async (req, res) => {
@@ -1312,25 +1461,23 @@ app.post('/chat', async (req, res) => {
     const { messages } = req.body;
 
     const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: 'openai/gpt-3.5-turbo', // Можно также попробовать mistralai/mixtral-8x7b или anthropic/claude-3-sonnet
-        messages,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://yourdomain.com', // Укажи домен своего сайта
-          'X-Title': 'My AI Chat' // Название проекта
-        },
-      }
-    );
+  'https://openrouter.ai/api/v1/chat/completions',
+  {
+    model: 'mistralai/mistral-7b-instruct', // или другую бесплатную модель
+    messages,
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+  }
+);
 
     res.json(response.data);
   } catch (error) {
-    console.error('Ошибка OpenRouter:', error.response?.data || error.message);
-    res.status(500).json({ error: 'OpenRouter API error' });
+    console.error('GPT API error:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to fetch GPT response' });
   }
 });
 app.use('/uploads', express.static('uploads'));

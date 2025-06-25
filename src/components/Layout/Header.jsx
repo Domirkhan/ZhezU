@@ -58,7 +58,7 @@ const Header = () => {
             </Link>
             {isAuthenticated && (
               <Link to="/applications" className="text-gray-700 hover:text-primary-600 transition-colors">
-                Заявки
+                {t('myApplications')}
               </Link>
             )}
             {isAuthenticated && user?.role === 'admin' && (
@@ -100,9 +100,9 @@ const Header = () => {
               )}
             </div>
 
-            {/* User Menu */}
+            {/* User Menu (desktop only) */}
             {isAuthenticated ? (
-              <div className="relative">
+              <div className="relative hidden md:block">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
@@ -131,7 +131,7 @@ const Header = () => {
                       className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       <FileText size={16} />
-                      <span>Мои заявки</span>
+                      <span>{t('myApplications')}</span>
                     </Link>
                     <button
                       onClick={handleLogout}
@@ -197,15 +197,29 @@ const Header = () => {
                 {t('news')}
               </Link>
               {isAuthenticated && (
-                <Link
-                  to="/applications"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="text-gray-700 hover:text-primary-600 px-4 py-2"
-                >
-                  Заявки
-                </Link>
+                <>
+                  <Link
+                    to="/applications"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-gray-700 hover:text-primary-600 px-4 py-2"
+                  >
+                    {t('myApplications')}
+                  </Link>
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-gray-700 hover:text-primary-600 px-4 py-2"
+                  >
+                    {t('profile')}
+                  </Link>
+                  <button
+                    onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                    className="text-gray-700 hover:text-primary-600 px-4 py-2 text-left"
+                  >
+                    {t('logout')}
+                  </button>
+                </>
               )}
-              
               {!isAuthenticated && (
                 <div className="flex space-x-3 px-4 pt-3 border-t border-gray-100">
                   <Link to="/login" className="btn-secondary flex-1 text-center">

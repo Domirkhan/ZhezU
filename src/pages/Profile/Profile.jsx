@@ -37,29 +37,29 @@ const Profile = () => {
   };
 
   const getTopCategory = (categoryScores) => {
-    if (!categoryScores || typeof categoryScores !== 'object') return 'Не определено';
+    if (!categoryScores || typeof categoryScores !== 'object') return t('notDefined');
     
     const entries = Object.entries(categoryScores);
-    if (entries.length === 0) return 'Не определено';
+    if (entries.length === 0) return t('notDefined');
     
     const topEntry = entries.reduce((max, current) => 
       current[1] > max[1] ? current : max
     );
     
     const categoryNames = {
-      IT: 'Информационные технологии',
-      Social: 'Социальные науки',
-      Science: 'Естественные науки',
-      Creative: 'Творческие специальности'
+      IT: t('catITName'),
+      Social: t('catSocialName'),
+      Science: t('catScienceName'),
+      Creative: t('catCreativeName')
     };
     
     return categoryNames[topEntry[0]] || topEntry[0];
   };
 
   const tabs = [
-    { id: 'info', name: 'Личная информация', icon: User },
-    { id: 'tests', name: 'История тестов', icon: FileText },
-    { id: 'settings', name: 'Настройки', icon: Settings }
+    { id: 'info', name: t('personalInfo'), icon: User },
+    { id: 'tests', name: t('testHistory'), icon: FileText },
+    { id: 'settings', name: t('settings'), icon: Settings }
   ];
 
   return (
@@ -108,34 +108,34 @@ const Profile = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="card">
               <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Основная информация
+                {t('mainInfo')}
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <User className="text-gray-400" size={20} />
                   <div>
-                    <p className="text-sm text-gray-600">Полное имя</p>
+                    <p className="text-sm text-gray-600">{t('fullName')}</p>
                     <p className="font-medium text-gray-900">{user?.fullName}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail className="text-gray-400" size={20} />
                   <div>
-                    <p className="text-sm text-gray-600">Email</p>
+                    <p className="text-sm text-gray-600">{t('email')}</p>
                     <p className="font-medium text-gray-900">{user?.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="text-gray-400" size={20} />
                   <div>
-                    <p className="text-sm text-gray-600">Телефон</p>
+                    <p className="text-sm text-gray-600">{t('phoneNumber')}</p>
                     <p className="font-medium text-gray-900">{user?.phoneNumber}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Calendar className="text-gray-400" size={20} />
                   <div>
-                    <p className="text-sm text-gray-600">Дата регистрации</p>
+                    <p className="text-sm text-gray-600">{t('registerDate')}</p>
                     <p className="font-medium text-gray-900">
                       {user?.createdAt ? formatDate(user.createdAt) : 'Не указано'}
                     </p>
@@ -146,15 +146,15 @@ const Profile = () => {
 
             <div className="card">
               <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Статистика
+                {t('statistics')}
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-primary-50 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <Award className="text-primary-600" size={24} />
                     <div>
-                      <p className="font-medium text-gray-900">Пройдено тестов</p>
-                      <p className="text-sm text-gray-600">Всего тестирований</p>
+                      <p className="font-medium text-gray-900">{t('testsPassed')}</p>
+                      <p className="text-sm text-gray-600">{t('totalTests')}</p>
                     </div>
                   </div>
                   <span className="text-2xl font-bold text-primary-600">
@@ -164,7 +164,7 @@ const Profile = () => {
                 
                 {testHistory.length > 0 && (
                   <div className="p-4 bg-secondary-50 rounded-lg">
-                    <p className="font-medium text-gray-900 mb-2">Последний результат</p>
+                    <p className="font-medium text-gray-900 mb-2">{t('lastResult')}</p>
                     <p className="text-sm text-gray-600">
                       {getTopCategory(testHistory[0]?.categoryScores)}
                     </p>
@@ -181,23 +181,23 @@ const Profile = () => {
         {activeTab === 'tests' && (
           <div className="card">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">
-              История тестирований
+              {t('testHistoryTitle')}
             </h3>
             
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                <p className="text-gray-600 mt-4">Загрузка...</p>
+                <p className="text-gray-600 mt-4">{t('loading')}</p>
               </div>
             ) : testHistory.length === 0 ? (
               <div className="text-center py-8">
                 <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-gray-600">Вы еще не проходили тестирование</p>
+                <p className="text-gray-600">{t('noTestsYet')}</p>
                 <button 
                   onClick={() => window.location.href = '/test'}
                   className="btn-primary mt-4"
                 >
-                  Пройти первый тест
+                  {t('takeFirstTest')}
                 </button>
               </div>
             ) : (
@@ -251,32 +251,32 @@ const Profile = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="card">
               <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Настройки аккаунта
+                {t('accountSettings')}
               </h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Язык интерфейса
+                    {t('interfaceLanguage')}
                   </label>
                   <select className="input-field">
-                    <option value="ru">Русский</option>
-                    <option value="kk">Қазақша</option>
-                    <option value="en">English</option>
+                    <option value="ru">{t('langRu')}</option>
+                    <option value="kk">{t('langKk')}</option>
+                    <option value="en">{t('langEn')}</option>
                   </select>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Уведомления
+                    {t('notifications')}
                   </label>
                   <div className="space-y-2">
                     <label className="flex items-center">
                       <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" defaultChecked />
-                      <span className="ml-2 text-sm text-gray-700">Email уведомления</span>
+                      <span className="ml-2 text-sm text-gray-700">{t('emailNotifications')}</span>
                     </label>
                     <label className="flex items-center">
                       <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" defaultChecked />
-                      <span className="ml-2 text-sm text-gray-700">Напоминания о тестах</span>
+                      <span className="ml-2 text-sm text-gray-700">{t('testReminders')}</span>
                     </label>
                   </div>
                 </div>
@@ -285,17 +285,17 @@ const Profile = () => {
 
             <div className="card">
               <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Безопасность
+                {t('security')}
               </h3>
               <div className="space-y-4">
                 <button className="w-full btn-secondary text-left">
-                  Изменить пароль
+                  {t('changePassword')}
                 </button>
                 <button className="w-full btn-secondary text-left">
-                  Двухфакторная аутентификация
+                  {t('twoFactorAuth')}
                 </button>
                 <button className="w-full text-red-600 hover:text-red-700 border border-red-300 hover:border-red-400 py-2 px-4 rounded-lg transition-colors">
-                  Удалить аккаунт
+                  {t('deleteAccount')}
                 </button>
               </div>
             </div>

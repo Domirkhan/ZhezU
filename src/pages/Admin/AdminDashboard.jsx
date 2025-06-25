@@ -22,6 +22,7 @@ import {
   CheckCircle, 
   XCircle 
 } from 'lucide-react';
+import PropTypes from 'prop-types';
 import StatisticsPanel from '../../components/StatisticsPanel';
 import Modal from '../../components/Modal';
 import ApplicationModal from '../Applications/ApplicationModal';
@@ -186,6 +187,14 @@ const handleViewApplication = (application) => {
       </div>
     </div>
   );
+
+  StatCard.propTypes = {
+    title: PropTypes.string.isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    icon: PropTypes.elementType.isRequired,
+    color: PropTypes.string,
+    trend: PropTypes.number
+  };
 
   const handleAddItem = (type) => {
     setModalType(type);
@@ -370,10 +379,21 @@ const handleSaveItem = async (type, data) => {
     );
   };
 
+  AdminDashboard.propTypes = {
+    user: PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      fullName: PropTypes.string,
+      email: PropTypes.string,
+      phoneNumber: PropTypes.string,
+      role: PropTypes.string,
+      createdAt: PropTypes.string,
+      lastLogin: PropTypes.string,
+    })
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-     
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
         <div className="mb-8">

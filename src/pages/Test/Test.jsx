@@ -62,6 +62,56 @@ const Test = () => {
         { id: 'c', text: t('q5c'), category: 'Science' },
         { id: 'd', text: t('q5d'), category: 'Creative' }
       ]
+    },
+    {
+      id: 6,
+      question: t('q6'),
+      options: [
+        { id: 'a', text: t('q6a'), category: 'IT' },
+        { id: 'b', text: t('q6b'), category: 'Social' },
+        { id: 'c', text: t('q6c'), category: 'Science' },
+        { id: 'd', text: t('q6d'), category: 'Creative' }
+      ]
+    },
+    {
+      id: 7,
+      question: t('q7'),
+      options: [
+        { id: 'a', text: t('q7a'), category: 'IT' },
+        { id: 'b', text: t('q7b'), category: 'Social' },
+        { id: 'c', text: t('q7c'), category: 'Science' },
+        { id: 'd', text: t('q7d'), category: 'Creative' }
+      ]
+    },
+    {
+      id: 8,
+      question: t('q8'),
+      options: [
+        { id: 'a', text: t('q8a'), category: 'IT' },
+        { id: 'b', text: t('q8b'), category: 'Social' },
+        { id: 'c', text: t('q8c'), category: 'Science' },
+        { id: 'd', text: t('q8d'), category: 'Creative' }
+      ]
+    },
+    {
+      id: 9,
+      question: t('q9'),
+      options: [
+        { id: 'a', text: t('q9a'), category: 'IT' },
+        { id: 'b', text: t('q9b'), category: 'Social' },
+        { id: 'c', text: t('q9c'), category: 'Science' },
+        { id: 'd', text: t('q9d'), category: 'Creative' }
+      ]
+    },
+    {
+      id: 10,
+      question: t('q10'),
+      options: [
+        { id: 'a', text: t('q10a'), category: 'IT' },
+        { id: 'b', text: t('q10b'), category: 'Social' },
+        { id: 'c', text: t('q10c'), category: 'Science' },
+        { id: 'd', text: t('q10d'), category: 'Creative' }
+      ]
     }
   ];
 

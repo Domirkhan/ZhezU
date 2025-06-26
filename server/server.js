@@ -18,26 +18,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = [
+
+// Middleware
+app.use(cors({
+  origin:[
   'https://zhezu.onrender.com',
   'http://localhost:5173',
   'https://zhezu-front.onrender.com/',
   'http://localhost:5000'
 
-];
-// Middleware
-app.use(cors({
-  origin: allowedOrigins,
+],
   credentials: true,
 }));
 app.use(express.json());
 
 
-const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, 'dist')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
+
 // File upload configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -784,11 +780,9 @@ app.get('/api/specialities', async (req, res) => {
   try {
     const { faculty, degree, language } = req.query;
     const filter = { isActive: true };
-    
     if (faculty) filter.faculty = faculty;
     if (degree) filter.degree = degree;
     if (language) filter.language = { $in: [language] };
-
     const specialities = await Speciality.find(filter).sort({ name: 1 });
     res.json(specialities);
   } catch (error) {
@@ -1481,28 +1475,27 @@ app.post('/chat', async (req, res) => {
   }
 });
 app.use('/uploads', express.static('uploads'));
-
-// Health check route
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    message: 'Talqapker ZheZU API is running',
-    timestamp: new Date().toISOString()
-  });
-});
-
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Что-то пошло не так!' });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
+// 404 handler для API (только для /api)
+app.use('/api/*', (req, res) => {
   res.status(404).json({ message: 'Маршрут не найден' });
+});
+
+// Статика
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Catch-all для SPA (только после всех API и статики!)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/api/health`);
 });
-

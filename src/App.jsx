@@ -12,7 +12,7 @@ import TestResults from './pages/Test/TestResults';
 import Chat from './pages/Chat/Chat';
 import Profile from './pages/Profile/Profile';
 import AdminDashboard from './pages/Admin/AdminDashboard';
-
+import ApplicationSuccess from './pages/Applications/ApplicationSuccess';
 // New Pages
 import ApplicationForm from './pages/Applications/ApplicationForm';
 import MyApplications from './pages/Applications/MyApplications';
@@ -20,7 +20,7 @@ import NewsList from './pages/News/NewsList';
 import NewsDetails from './pages/News/NewsDetails';
 // Set axios base URL
 import axios from 'axios';
-axios.defaults.baseURL = 'https://zhezu.onrender.com';
+axios.defaults.baseURL = 'http://localhost:5000';
 
 // Import i18n
 import './i18n/i18n';
@@ -45,7 +45,11 @@ function App() {
                 <Profile />
               </ProtectedRoute>
             } />
-            
+             <Route path="/applications/success" element={
+              <ProtectedRoute>
+                <ApplicationSuccess />
+              </ProtectedRoute>
+            } />
             <Route path="/applications" element={
               <ProtectedRoute>
                 <MyApplications />

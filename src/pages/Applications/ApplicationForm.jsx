@@ -63,16 +63,19 @@ const ApplicationForm = () => {
 
   useEffect(() => {
     fetchSpecialities();
+    // eslint-disable-next-line
   }, []);
 
-  const fetchSpecialities = async () => {
-    try {
-      const response = await axios.get('/api/specialities');
-      setSpecialities(response.data);
-    } catch (error) {
-      console.error('Error fetching specialities:', error);
-    }
-  };
+const fetchSpecialities = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/api/specialities');
+    console.log('specialities response:', response.data);
+    setSpecialities(Array.isArray(response.data) ? response.data : []);
+  } catch (error) {
+    console.error('Error fetching specialities:', error);
+    setSpecialities([]);
+  }
+};
 
   const steps = [
     { id: 1, name: t('applicationStepPersonal'), icon: User },
@@ -484,7 +487,7 @@ const ApplicationForm = () => {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {specialities.map((speciality) => {
+                {(Array.isArray(specialities) ? specialities : []).map((speciality) => {
                   const isSelected = formData.specialities.find(s => s.specialityId === speciality._id);
                   const priority = isSelected ? isSelected.priority : null;
                   

@@ -22,6 +22,7 @@ const NewsList = () => {
 
   useEffect(() => {
     fetchNews();
+    // eslint-disable-next-line
   }, [selectedCategory, currentPage]);
 
   const fetchNews = async () => {
@@ -31,15 +32,24 @@ const NewsList = () => {
         page: currentPage,
         limit: 12
       };
-      
+
       if (selectedCategory !== 'all') {
         params.category = selectedCategory;
       }
 
-      const response = await axios.get('/api/news', { params });
-      setNews(response.data.news);
-      setTotalPages(response.data.totalPages);
+      // Важно: если фронт и бэк на разных портах, пропишите baseURL в axios или используйте полный путь
+      const response = await axios.get('http://localhost:5000/api/news', { params });
+      // Проверяем, что получили именно объект с массивом новостей
+      if (response.data && Array.isArray(response.data.news)) {
+        setNews(response.data.news);
+        setTotalPages(Number(response.data.totalPages) || 1);
+      } else {
+        setNews([]);
+        setTotalPages(1);
+      }
     } catch (error) {
+      setNews([]);
+      setTotalPages(1);
       console.error('Error fetching news:', error);
     } finally {
       setLoading(false);
@@ -47,7 +57,10 @@ const NewsList = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('ru-RU', {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date)) return '';
+    return date.toLocaleDateString('ru-RU', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -121,7 +134,7 @@ const NewsList = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
             <p className="text-gray-600 mt-4">{t('newsLoading')}</p>
           </div>
-        ) : news.length === 0 ? (
+        ) : !Array.isArray(news) || news.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600">{t('newsNotFound')}</p>
           </div>
@@ -134,6 +147,8 @@ const NewsList = () => {
                   {article.image && (
                     <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
                       <img
+                        // Если ваши файлы реально лежат в uploads/documents, оставьте так.
+                        // Если просто в uploads, уберите /documents
                         src={`/uploads/documents/${article.image.filename}`}
                         alt={article.title}
                         className="w-full h-full object-cover"
@@ -199,7 +214,7 @@ const NewsList = () => {
                   >
                     {t('newsPrev')}
                   </button>
-                  
+
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
@@ -213,7 +228,7 @@ const NewsList = () => {
                       {page}
                     </button>
                   ))}
-                  
+
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}

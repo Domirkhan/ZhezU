@@ -61,12 +61,13 @@ useEffect(() => {
 
 const fetchApplications = async () => {
   try {
-    const response = await axios.get('/api/admin/applications', {
-  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-});
-    setApplications(response.data.applications || []);
+    const response = await axios.get('http://localhost:5000/api/admin/applications', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    console.log('admin applications:', response.data);
+    setApplications(Array.isArray(response.data.applications) ? response.data.applications : []);
   } catch (error) {
-    console.error('Ошибка загрузки заявок:', error);
+    setApplications([]);
   }
 };
 const filteredApplications = () => {

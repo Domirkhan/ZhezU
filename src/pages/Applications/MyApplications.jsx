@@ -22,18 +22,22 @@ const MyApplications = () => {
 
   useEffect(() => {
     fetchMyApplications();
+    // eslint-disable-next-line
   }, []);
 
   const fetchMyApplications = async () => {
-    try {
-      const response = await axios.get('/api/applications/my');
-      setApplications(response.data);
-    } catch (error) {
-      console.error('Error fetching applications:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const response = await axios.get('http://localhost:5000/api/applications/my', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    console.log('applications:', response.data);
+    setApplications(Array.isArray(response.data) ? response.data : []);
+  } catch (error) {
+    setApplications([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -87,6 +91,7 @@ const MyApplications = () => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('ru-RU', {
       year: 'numeric',
       month: 'long',
@@ -126,7 +131,7 @@ const MyApplications = () => {
           </Link>
         </div>
 
-        {applications.length === 0 ? (
+        {(!Array.isArray(applications) || applications.length === 0) ? (
           <div className="text-center py-12">
             <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -141,7 +146,7 @@ const MyApplications = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            {applications.map((application) => (
+            {(Array.isArray(applications) ? applications : []).map((application) => (
               <div key={application._id} className="card">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3">
@@ -278,7 +283,11 @@ const MyApplications = () => {
                     <button
                       onClick={async () => {
                         try {
-                          await axios.put(`/api/applications/${application._id}/submit`);
+                          await axios.put(`/api/applications/${application._id}/submit`, {}, {
+                            headers: {
+                              Authorization: `Bearer ${localStorage.getItem('token')}`
+                            }
+                          });
                           fetchMyApplications(); // Refresh the list
                         } catch (error) {
                           console.error('Error submitting application:', error);

@@ -22,10 +22,12 @@ const TestResults = () => {
       color: '#3B82F6',
       description: t('catITDesc'),
       professions: [
-        t('catITProf1'), t('catITProf2'), t('catITProf3'), t('catITProf4'), t('catITProf5')
+        // Можно оставить или убрать
       ],
       programs: [
-        t('catITProg1'), t('catITProg2'), t('catITProg3'), t('catITProg4')
+        { code: '6В01504', name: 'Математика и информатика', department: 'Горное дело, металлургия и естествознание' },
+        { code: '6В07101', name: 'Автоматизация и управление', department: 'Электроэнергетика и охрана труда' },
+        { code: '6В07104', name: 'Электроэнергетика', department: 'Электроэнергетика и охрана труда' }
       ]
     },
     Social: {
@@ -34,10 +36,14 @@ const TestResults = () => {
       color: '#10B981',
       description: t('catSocialDesc'),
       professions: [
-        t('catSocialProf1'), t('catSocialProf2'), t('catSocialProf3'), t('catSocialProf4'), t('catSocialProf5')
+        // Можно оставить или убрать
       ],
       programs: [
-        t('catSocialProg1'), t('catSocialProg2'), t('catSocialProg3'), t('catSocialProg4')
+        { code: '6В01301', name: 'Педагогика и методика начального образования', department: 'Педагогика, психология и филология' },
+        { code: '6В01701', name: 'Казахский язык и литература', department: 'Педагогика, психология и филология' },
+        { code: '6В01702', name: 'Иностранные языки', department: 'Педагогика, психология и филология' },
+        { code: '6В01704', name: 'Русский язык и литература', department: 'Педагогика, психология и филология' },
+        { code: '6В04101', name: 'Экономика', department: 'История Казахстана, экономика и право' }
       ]
     },
     Science: {
@@ -46,10 +52,17 @@ const TestResults = () => {
       color: '#8B5CF6',
       description: t('catScienceDesc'),
       professions: [
-        t('catScienceProf1'), t('catScienceProf2'), t('catScienceProf3'), t('catScienceProf4'), t('catScienceProf5')
+        // Можно оставить или убрать
       ],
       programs: [
-        t('catScienceProg1'), t('catScienceProg2'), t('catScienceProg3'), t('catScienceProg4'), t('catScienceProg5')
+        { code: '6В01505', name: 'Математика и физика', department: 'Горное дело, металлургия и естествознание' },
+        { code: '6В01507', name: 'Биология и химия', department: 'Горное дело, металлургия и естествознание' },
+        { code: '6В07201', name: 'Геология и разведка месторождений полезных ископаемых', department: 'Горное дело, металлургия и естествознание' },
+        { code: '6В07203', name: 'Горное дело', department: 'Горное дело, металлургия и естествознание' },
+        { code: '6В07205', name: 'Обогащение полезных ископаемых', department: 'Горное дело, металлургия и естествознание' },
+        { code: '6В07206', name: 'Металлургия', department: 'Горное дело, металлургия и естествознание' },
+        { code: '6В07250', name: 'Горная инженерия', department: 'Горное дело, металлургия и естествознание' },
+        { code: '6В11201', name: 'Безопасность жизнедеятельности и защита окружающей среды', department: 'Электроэнергетика и охрана труда' }
       ]
     },
     Creative: {
@@ -58,10 +71,14 @@ const TestResults = () => {
       color: '#F59E0B',
       description: t('catCreativeDesc'),
       professions: [
-        t('catCreativeProf1'), t('catCreativeProf2'), t('catCreativeProf3'), t('catCreativeProf4'), t('catCreativeProf5')
+        // Можно оставить или убрать
       ],
       programs: [
-        t('catCreativeProg1'), t('catCreativeProg2'), t('catCreativeProg3'), t('catCreativeProg4')
+        { code: '6В01402', name: 'Физическая культура и спорт', department: 'Физическая культура и изобразительное искусство' },
+        { code: '6В01401', name: 'Изобразительное искусство и черчение', department: 'Физическая культура и изобразительное искусство' },
+        { code: '6В07103', name: 'Технологические машины и оборудования', department: 'Технологические машины и строительство' },
+        { code: '6В07106', name: 'Транспорт, транспортная техника и технологии', department: 'Технологические машины и строительство' },
+        { code: '6В07301', name: 'Строительство', department: 'Технологические машины и строительство' }
       ]
     }
   };
@@ -80,7 +97,8 @@ const TestResults = () => {
   const pieData = sortedCategories.map(cat => ({
     name: cat.name,
     value: cat.score,
-    color: cat.color
+    color: cat.color,
+    percentage: cat.percentage
   }));
 
   const barData = sortedCategories.map(cat => ({
@@ -160,7 +178,7 @@ const handleDownloadPDF = async () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Charts */}
           <div className="space-y-6">
-            <div className="card">
+            <div className="card" style={{ minWidth: 420, maxWidth: 600, margin: '0 auto' }}>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
                 {t('categoryDistribution')}
               </h3>
@@ -172,7 +190,7 @@ const handleDownloadPDF = async () => {
                     cy="50%"
                     outerRadius={100}
                     dataKey="value"
-                    label={({ name, percentage }) => `${name}: ${percentage}%`}
+                    label={({ percentage }) => `${percentage || 0}%`}
                   >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
@@ -181,6 +199,16 @@ const handleDownloadPDF = async () => {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
+              {/* Легенда под графиком */}
+              <div className="flex flex-wrap gap-4 justify-center mt-4" style={{maxWidth: 520, margin: '0 auto'}}>
+                {pieData.map((entry, idx) => (
+                  <div key={idx} className="flex items-center space-x-2 whitespace-nowrap">
+                    <span style={{background: entry.color, width: 16, height: 16, borderRadius: '50%', display: 'inline-block'}}></span>
+                    <span className="text-gray-700 text-sm">{entry.name}</span>
+                    <span className="text-gray-500 text-sm">{entry.percentage || 0}%</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="card">
@@ -245,10 +273,12 @@ const handleDownloadPDF = async () => {
               <div>
                 <h5 className="font-medium text-gray-900 mb-2">{t('programsTitle')}</h5>
                 <div className="space-y-1">
-                  {topCategory.programs.slice(0, 3).map((program, index) => (
+                  {topCategory.programs.map((program, index) => (
                     <div key={index} className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-primary-600 rounded-full"></div>
-                      <span className="text-gray-700 text-sm">{program}</span>
+                      <span className="text-gray-700 text-sm font-semibold">{program.code}</span>
+                      <span className="text-gray-700 text-sm">{program.name}</span>
+                      <span className="text-gray-500 text-xs">({program.department})</span>
                     </div>
                   ))}
                 </div>
@@ -304,7 +334,17 @@ const handleDownloadPDF = async () => {
                   
                   <div className="text-sm">
                     <p className="font-medium text-gray-900 mb-1">Профессии:</p>
-                    <p className="text-gray-600">{category.professions.slice(0, 2).join(', ')}</p>
+                    {category.programs && category.programs.length > 0 ? (
+                      <ul className="space-y-1">
+                        {category.programs.map((program, idx) => (
+                          <li key={idx}>
+                            <span className="font-semibold">{program.code}</span> — {program.name} <span className="text-gray-500 text-xs">({program.department})</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="text-gray-500">Нет данных</span>
+                    )}
                   </div>
                 </div>
               );

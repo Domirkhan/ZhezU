@@ -38,8 +38,8 @@ const authReducer = (state, action) => {
 
 const initialState = {
   loading: false,
-  isAuthenticated: false,
-  user: null,
+  isAuthenticated: !!localStorage.getItem('token'),
+  user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
   token: localStorage.getItem('token'),
   error: null
 };
@@ -47,7 +47,7 @@ const initialState = {
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Set default axios headers
+  // Устанавливаем заголовок авторизации и localStorage
   useEffect(() => {
     if (state.token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${state.token}`;
@@ -56,14 +56,21 @@ export const AuthProvider = ({ children }) => {
       delete axios.defaults.headers.common['Authorization'];
       localStorage.removeItem('token');
     }
-  }, [state.token]);
+    // Сохраняем пользователя
+    if (state.user) {
+      localStorage.setItem('user', JSON.stringify(state.user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [state.token, state.user]);
 
-  // Check if user is logged in on app start
+  // Восстанавливаем пользователя при старте приложения
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
+    if (token && !state.user) {
       loadUser();
     }
+    // eslint-disable-next-line
   }, []);
 
   const loadUser = async () => {
@@ -86,9 +93,14 @@ export const AuthProvider = ({ children }) => {
     try {
       dispatch({ type: 'LOADING' });
       const response = await axios.post('/api/auth/login', { login, password });
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       dispatch({
         type: 'LOGIN_SUCCESS',
-        payload: response.data
+        payload: {
+          user: response.data.user,
+          token: response.data.token
+        }
       });
       return { success: true };
     } catch (error) {
@@ -104,9 +116,14 @@ export const AuthProvider = ({ children }) => {
     try {
       dispatch({ type: 'LOADING' });
       const response = await axios.post('/api/auth/register', userData);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       dispatch({
         type: 'LOGIN_SUCCESS',
-        payload: response.data
+        payload: {
+          user: response.data.user,
+          token: response.data.token
+        }
       });
       return { success: true };
     } catch (error) {
@@ -120,6 +137,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     dispatch({ type: 'LOGOUT' });
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   };
 
   return (

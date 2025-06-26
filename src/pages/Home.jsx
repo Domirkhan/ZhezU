@@ -119,7 +119,7 @@ const Home = () => {
             <div className="relative">
               <div className="aspect-square bg-gradient-to-br from-primary-100 to-secondary-100 rounded-2xl overflow-hidden">
                 <img
-                  src="https://images.pexels.com/photos/5212324/pexels-photo-5212324.jpeg?auto=compress&cs=tinysrgb&w=600"
+                  src="https://www.magazines88.com/wp-content/uploads/2020/04/student-reading-program.jpg"
                   alt="Students studying"
                   className="w-full h-full object-cover"
                 />

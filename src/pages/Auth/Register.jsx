@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
+import logo from '../../../public/logo.png'
 
 const Register = () => {
   const [formData, setFormData] = useState({

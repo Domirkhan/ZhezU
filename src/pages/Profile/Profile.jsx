@@ -7,7 +7,7 @@ import axios from 'axios';
 const Profile = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [testHistory, setTestHistory] = useState([]);
+  const [testHistory, setTestHistory] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('info');
 
@@ -15,16 +15,16 @@ const Profile = () => {
     fetchTestHistory();
   }, []);
 
-  const fetchTestHistory = async () => {
-    try {
-      const response = await axios.get('/api/test/history');
-      setTestHistory(response.data);
-    } catch (error) {
-      console.error('Error fetching test history:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchTestHistory = async () => {
+  try {
+    const response = await axios.get('/api/test/history');
+    setTestHistory(Array.isArray(response.data) ? response.data : []);
+  } catch (error) {
+    setTestHistory([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
@@ -59,7 +59,7 @@ const Profile = () => {
   const tabs = [
     { id: 'info', name: t('personalInfo'), icon: User },
     { id: 'tests', name: t('testHistory'), icon: FileText },
-    { id: 'settings', name: t('settings'), icon: Settings }
+
   ];
 
   return (
@@ -144,37 +144,7 @@ const Profile = () => {
               </div>
             </div>
 
-            <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                {t('statistics')}
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-primary-50 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <Award className="text-primary-600" size={24} />
-                    <div>
-                      <p className="font-medium text-gray-900">{t('testsPassed')}</p>
-                      <p className="text-sm text-gray-600">{t('totalTests')}</p>
-                    </div>
-                  </div>
-                  <span className="text-2xl font-bold text-primary-600">
-                    {testHistory.length}
-                  </span>
-                </div>
-                
-                {testHistory.length > 0 && (
-                  <div className="p-4 bg-secondary-50 rounded-lg">
-                    <p className="font-medium text-gray-900 mb-2">{t('lastResult')}</p>
-                    <p className="text-sm text-gray-600">
-                      {getTopCategory(testHistory[0]?.categoryScores)}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {formatDate(testHistory[0]?.completedAt)}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+            
           </div>
         )}
 
@@ -247,60 +217,7 @@ const Profile = () => {
           </div>
         )}
 
-        {activeTab === 'settings' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                {t('accountSettings')}
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('interfaceLanguage')}
-                  </label>
-                  <select className="input-field">
-                    <option value="ru">{t('langRu')}</option>
-                    <option value="kk">{t('langKk')}</option>
-                    <option value="en">{t('langEn')}</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('notifications')}
-                  </label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" defaultChecked />
-                      <span className="ml-2 text-sm text-gray-700">{t('emailNotifications')}</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" defaultChecked />
-                      <span className="ml-2 text-sm text-gray-700">{t('testReminders')}</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="card">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                {t('security')}
-              </h3>
-              <div className="space-y-4">
-                <button className="w-full btn-secondary text-left">
-                  {t('changePassword')}
-                </button>
-                <button className="w-full btn-secondary text-left">
-                  {t('twoFactorAuth')}
-                </button>
-                <button className="w-full text-red-600 hover:text-red-700 border border-red-300 hover:border-red-400 py-2 px-4 rounded-lg transition-colors">
-                  {t('deleteAccount')}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        
       </div>
     </div>
   );

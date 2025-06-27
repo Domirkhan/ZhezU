@@ -2,14 +2,18 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ArrowRight, Clock, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Test = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(1000); // 30 minutes
   const [isStarted, setIsStarted] = useState(false);
+  const [fullName, setFullName] = useState(user?.fullName || '');
+  const [fullNameError, setFullNameError] = useState('');
 
   // Sample questions - in real app, these would come from API
   const questions = [
@@ -170,12 +174,18 @@ const Test = () => {
       state: { 
         categoryScores,
         totalQuestions: questions.length,
-        answeredQuestions: Object.keys(answers).length
+        answeredQuestions: Object.keys(answers).length,
+        fullName
       }
     });
   };
 
   const startTest = () => {
+    if (!fullName.trim()) {
+      setFullNameError('Пожалуйста, введите полное ФИО');
+      return;
+    }
+    setFullNameError('');
     setIsStarted(true);
   };
 
@@ -200,7 +210,21 @@ const Test = () => {
               <h2 className="text-2xl font-semibold text-gray-900 mb-6">
                 {t('testBeforeTitle')}
               </h2>
-              
+              <div className="mb-6">
+                <label className="block text-left text-sm font-medium text-gray-700 mb-1" htmlFor="fullName">
+                  {t('fullName')} *
+                </label>
+                <input
+                  id="fullName"
+                  type="text"
+                  className={`input-field w-full text-center ${fullNameError ? 'border-red-300' : ''}`}
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  placeholder="Введите ваше полное ФИО"
+                  autoComplete="name"
+                />
+                {fullNameError && <p className="text-red-600 text-sm mt-1">{fullNameError}</p>}
+              </div>
               <div className="space-y-4 text-left mb-8">
                 <div className="flex items-start space-x-3">
                   <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mt-0.5">

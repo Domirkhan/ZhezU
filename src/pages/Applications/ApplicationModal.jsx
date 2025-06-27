@@ -7,10 +7,7 @@ import {
   MapPin, 
   Calendar, 
   GraduationCap,
-  FileText,
   Award,
-  CheckCircle,
-  XCircle,
   Clock,
   AlertCircle,
   Edit
@@ -29,7 +26,6 @@ const ApplicationModal = ({ isOpen, onClose, application, statusConfig, onStatus
   };
 
   const StatusIcon = statusConfig[application.status].icon;
-  const documentsComplete = Object.values(application.documents).every(doc => doc);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -180,26 +176,26 @@ const ApplicationModal = ({ isOpen, onClose, application, statusConfig, onStatus
                   <div className="flex items-center space-x-3">
                     <GraduationCap className="text-gray-400" size={20} />
                     <div>
-                      <p className="text-sm text-gray-600">Выбранная специальность</p>
-                      <p className="font-medium text-gray-900">{application.specialty}</p>
+                      <p className="text-sm text-gray-600">Выбранные специальности</p>
+                      <p className="font-medium text-gray-900">
+                        {Array.isArray(application.specialities) && application.specialities.length > 0
+                          ? application.specialities.map((s, idx) => `${s.priority}. ${s.name}`).join(', ')
+                          : application.specialty || '-'}
+                      </p>
                     </div>
                   </div>
                   
                   <div className="flex items-center space-x-3">
                     <Award className="text-gray-400" size={20} />
                     <div>
-                      <p className="text-sm text-gray-600">Результат теста</p>
+                      <p className="text-sm text-gray-600">Результат ЕНТ</p>
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium text-gray-900">{application.testScore}/100</p>
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full ${
-                              application.testScore >= 80 ? 'bg-green-500' :
-                              application.testScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                            }`}
-                            style={{ width: `${application.testScore}%` }}
-                          ></div>
-                        </div>
+                        <p className="font-medium text-gray-900">
+                          {application.entResults?.totalScore ?? application.testScore ?? '-'}
+                        </p>
+                        {application.entResults?.totalScore && (
+                          <span className="text-sm text-gray-600">/140</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -209,91 +205,21 @@ const ApplicationModal = ({ isOpen, onClose, application, statusConfig, onStatus
                     <div>
                       <p className="text-sm text-gray-600">Дата подачи</p>
                       <p className="font-medium text-gray-900">
-                        {new Date(application.submittedAt).toLocaleDateString('ru-RU', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                        {application.submittedAt
+                          ? new Date(application.submittedAt).toLocaleDateString('ru-RU', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          : ''}
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Документы</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <FileText className="text-gray-400" size={16} />
-                      <span className="text-sm text-gray-700">Паспорт</span>
-                    </div>
-                    {application.documents.passport ? (
-                      <CheckCircle className="text-green-600" size={16} />
-                    ) : (
-                      <XCircle className="text-red-600" size={16} />
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <FileText className="text-gray-400" size={16} />
-                      <span className="text-sm text-gray-700">Аттестат</span>
-                    </div>
-                    {application.documents.certificate ? (
-                      <CheckCircle className="text-green-600" size={16} />
-                    ) : (
-                      <XCircle className="text-red-600" size={16} />
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <FileText className="text-gray-400" size={16} />
-                      <span className="text-sm text-gray-700">Фотографии</span>
-                    </div>
-                    {application.documents.photos ? (
-                      <CheckCircle className="text-green-600" size={16} />
-                    ) : (
-                      <XCircle className="text-red-600" size={16} />
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <FileText className="text-gray-400" size={16} />
-                      <span className="text-sm text-gray-700">Медицинская справка</span>
-                    </div>
-                    {application.documents.medicalCert ? (
-                      <CheckCircle className="text-green-600" size={16} />
-                    ) : (
-                      <XCircle className="text-red-600" size={16} />
-                    )}
-                  </div>
-                </div>
-                
-                <div className="mt-4 p-3 rounded-lg bg-gray-50">
-                  <div className="flex items-center space-x-2">
-                    {documentsComplete ? (
-                      <>
-                        <CheckCircle className="text-green-600" size={16} />
-                        <span className="text-sm font-medium text-green-800">
-                          Все документы предоставлены
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <AlertCircle className="text-yellow-600" size={16} />
-                        <span className="text-sm font-medium text-yellow-800">
-                          Не все документы предоставлены
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+              {/* Блок документов полностью удалён */}
             </div>
           </div>
 

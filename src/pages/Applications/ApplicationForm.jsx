@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  FileText,
-  Upload,
   X,
   Check,
   User,
@@ -11,7 +9,6 @@ import {
   Star,
   AlertCircle,
 } from "lucide-react";
-import PropTypes from "prop-types";
 import axios from "axios";
 
 const ApplicationForm = () => {
@@ -24,7 +21,6 @@ const ApplicationForm = () => {
   const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
-    // Personal Information
     personalInfo: {
       iin: "",
       birthDate: "",
@@ -34,9 +30,7 @@ const ApplicationForm = () => {
       parentName: "",
       parentPhone: "",
     },
-    // Selected Specialities (up to 3)
     specialities: [],
-    // ENT Results
     entResults: {
       totalScore: "",
       subjects: [
@@ -47,17 +41,7 @@ const ApplicationForm = () => {
         { name: t("entSubjectProfile2"), score: "" },
       ],
     },
-    // Documents
-    documents: {
-      passport: null,
-      diploma: null,
-      photo: null,
-      medical: null,
-      additional: [],
-    },
   });
-
-  const [uploadedFiles, setUploadedFiles] = useState({});
 
   useEffect(() => {
     fetchSpecialities();
@@ -69,10 +53,8 @@ const ApplicationForm = () => {
       const response = await axios.get(
         "https://zhezu.onrender.com/api/specialities"
       );
-      console.log("specialities response:", response.data);
       setSpecialities(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
-      console.error("Error fetching specialities:", error);
       setSpecialities([]);
     }
   };
@@ -81,7 +63,6 @@ const ApplicationForm = () => {
     { id: 1, name: t("applicationStepPersonal"), icon: User },
     { id: 2, name: t("applicationStepSpecialities"), icon: GraduationCap },
     { id: 3, name: t("applicationStepEnt"), icon: Star },
-    { id: 4, name: t("applicationStepDocuments"), icon: FileText },
   ];
 
   const handleInputChange = (section, field, value) => {
@@ -96,7 +77,6 @@ const ApplicationForm = () => {
 
   const handleSpecialitySelect = (speciality) => {
     if (formData.specialities.find((s) => s.specialityId === speciality._id)) {
-      // Remove if already selected
       setFormData((prev) => ({
         ...prev,
         specialities: prev.specialities.filter(
@@ -104,7 +84,6 @@ const ApplicationForm = () => {
         ),
       }));
     } else if (formData.specialities.length < 3) {
-      // Add with priority
       setFormData((prev) => ({
         ...prev,
         specialities: [
@@ -117,42 +96,6 @@ const ApplicationForm = () => {
         ],
       }));
     }
-  };
-
-  const handleFileUpload = (documentType, file) => {
-    if (file && file.size <= 10 * 1024 * 1024) {
-      // 10MB limit
-      setUploadedFiles((prev) => ({
-        ...prev,
-        [documentType]: file,
-      }));
-
-      setFormData((prev) => ({
-        ...prev,
-        documents: {
-          ...prev.documents,
-          [documentType]: file,
-        },
-      }));
-    } else {
-      alert(t("fileTooLarge"));
-    }
-  };
-
-  const removeFile = (documentType) => {
-    setUploadedFiles((prev) => {
-      const newFiles = { ...prev };
-      delete newFiles[documentType];
-      return newFiles;
-    });
-
-    setFormData((prev) => ({
-      ...prev,
-      documents: {
-        ...prev.documents,
-        [documentType]: null,
-      },
-    }));
   };
 
   const validateStep = (step) => {
@@ -193,12 +136,7 @@ const ApplicationForm = () => {
           }
         });
         break;
-
-      case 4:
-        if (!uploadedFiles.passport) newErrors.passport = t("passportRequired");
-        if (!uploadedFiles.diploma) newErrors.diploma = t("diplomaRequired");
-        if (!uploadedFiles.photo) newErrors.photo = t("photoRequired");
-        if (!uploadedFiles.medical) newErrors.medical = t("medicalRequired");
+      default:
         break;
     }
 
@@ -208,7 +146,7 @@ const ApplicationForm = () => {
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 4));
+      setCurrentStep((prev) => Math.min(prev + 1, 3));
     }
   };
 
@@ -217,35 +155,33 @@ const ApplicationForm = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(4)) return;
+    if (!validateStep(3)) return;
 
     setLoading(true);
 
     try {
-      const submitData = new FormData();
+      const submitData = {
+        personalInfo: formData.personalInfo,
+        specialities: formData.specialities,
+        entResults: formData.entResults,
+      };
 
-      // Add application data
-      submitData.append(
-        "applicationData",
-        JSON.stringify({
-          personalInfo: formData.personalInfo,
-          specialities: formData.specialities,
-          entResults: formData.entResults,
-        })
-      );
+      // Отправляем как FormData, чтобы сервер корректно принял (и с токеном)
+      const formDataToSend = new FormData();
+      formDataToSend.append("applicationData", JSON.stringify(submitData));
 
-      // Add files
-      Object.entries(uploadedFiles).forEach(([key, file]) => {
-        if (file) {
-          submitData.append(key, file);
+      const token = localStorage.getItem("token");
+
+      const response = await axios.post(
+        "https://zhezu.onrender.com/api/applications",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-
-      const response = await axios.post("/api/applications", submitData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      );
 
       if (response.data.applicationId) {
         navigate("/applications/success", {
@@ -253,81 +189,10 @@ const ApplicationForm = () => {
         });
       }
     } catch (error) {
-      console.error("Submit application error:", error);
       alert("Ошибка при подаче заявки. Попробуйте еще раз.");
     } finally {
       setLoading(false);
     }
-  };
-
-  const FileUploadComponent = ({
-    documentType,
-    title,
-    required = true,
-    accept = ".pdf,.jpg,.jpeg,.png,.doc,.docx",
-  }) => {
-    const file = uploadedFiles[documentType];
-
-    return (
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-        <div className="text-center">
-          <Upload className="mx-auto h-12 w-12 text-gray-400" />
-          <div className="mt-4">
-            <label htmlFor={documentType} className="cursor-pointer">
-              <span className="mt-2 block text-sm font-medium text-gray-900">
-                {title} {required && <span className="text-red-500">*</span>}
-              </span>
-              <span className="mt-1 block text-xs text-gray-500">
-                {t("fileFormatsDescription")}
-              </span>
-            </label>
-            <input
-              id={documentType}
-              name={documentType}
-              type="file"
-              className="sr-only"
-              accept={accept}
-              onChange={(e) =>
-                handleFileUpload(documentType, e.target.files[0])
-              }
-            />
-          </div>
-
-          {file ? (
-            <div className="mt-4 flex items-center justify-center space-x-2">
-              <Check className="h-5 w-5 text-green-500" />
-              <span className="text-sm text-green-600">{file.name}</span>
-              <button
-                type="button"
-                onClick={() => removeFile(documentType)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              className="mt-4 btn-primary"
-              onClick={() => document.getElementById(documentType).click()}
-            >
-              {t("chooseFile")}
-            </button>
-          )}
-        </div>
-
-        {errors[documentType] && (
-          <p className="mt-2 text-sm text-red-600">{errors[documentType]}</p>
-        )}
-      </div>
-    );
-  };
-
-  FileUploadComponent.propTypes = {
-    documentType: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    required: PropTypes.bool,
-    accept: PropTypes.string,
   };
 
   return (
@@ -786,73 +651,6 @@ const ApplicationForm = () => {
             </div>
           )}
 
-          {/* Step 4: Documents Upload */}
-          {currentStep === 4 && (
-            <div className="space-y-4 sm:space-y-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-4">
-                {t("documentsUpload")}
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                <FileUploadComponent
-                  documentType="passport"
-                  title={t("passportScan")}
-                  required={true}
-                />
-
-                <FileUploadComponent
-                  documentType="diploma"
-                  title={t("diplomaScan")}
-                  required={true}
-                />
-
-                <FileUploadComponent
-                  documentType="photo"
-                  title={t("photo3x4")}
-                  required={true}
-                  accept=".jpg,.jpeg,.png"
-                />
-
-                <FileUploadComponent
-                  documentType="medical"
-                  title={t("medicalCertificate")}
-                  required={true}
-                />
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  {t("additionalDocumentsTitle")}
-                </h3>
-
-                <FileUploadComponent
-                  documentType="additional"
-                  title={t("additionalDocuments")}
-                  required={false}
-                />
-              </div>
-
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div className="flex">
-                  <Check className="h-5 w-5 text-green-400" />
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-green-800">
-                      {t("documentsRequirementsTitle")}
-                    </h3>
-                    <div className="mt-2 text-sm text-green-700">
-                      <ul className="list-disc list-inside space-y-1">
-                        <li>{t("documentsClearReadable")}</li>
-                        <li>{t("documentsSupportedFormats")}</li>
-                        <li>{t("documentsMaxSize")}</li>
-                        <li>{t("documentsPhotoRequirements")}</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Navigation Buttons */}
           <div className="flex flex-col md:flex-row gap-2 md:gap-4 justify-between pt-4 md:pt-6 border-t mt-4 md:mt-6">
             <button
@@ -862,7 +660,7 @@ const ApplicationForm = () => {
             >
               {t("back")}
             </button>
-            {currentStep < 4 ? (
+            {currentStep < 3 ? (
               <button
                 onClick={handleNext}
                 className="btn-primary w-full md:w-auto"

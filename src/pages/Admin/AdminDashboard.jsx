@@ -296,7 +296,7 @@ const handleSaveItem = async (type, data) => {
   }
   break;
 
-      case 'news':
+case 'news':
   if (editingItem) {
     if (data.image && typeof data.image !== 'string') {
       // Если фото меняется, отправляем FormData
@@ -309,8 +309,9 @@ const handleSaveItem = async (type, data) => {
       formDataToSend.append('contentEn', data.contentEn || data.content);
       formDataToSend.append('excerpt', data.excerpt || data.content?.substring(0, 150) || '');
       formDataToSend.append('category', data.category || 'admission');
-      formDataToSend.append('status', data.status || 'draft');
-      formDataToSend.append('isPublished', data.status === 'published');
+      // Принудительно публикуем новость
+      formDataToSend.append('status', 'published');
+      formDataToSend.append('isPublished', 'true');
       formDataToSend.append('image', data.image);
 
       const response = await axios.put(
@@ -337,8 +338,9 @@ const handleSaveItem = async (type, data) => {
           contentEn: data.contentEn || data.content,
           excerpt: data.excerpt || data.content?.substring(0, 150) || '',
           category: data.category || 'admission',
-          status: data.status || 'draft',
-          isPublished: data.status === 'published',
+          // Принудительно публикуем новость
+          status: 'published',
+          isPublished: true,
         },
         {
           headers: {
@@ -348,36 +350,38 @@ const handleSaveItem = async (type, data) => {
       );
       setNews(news.map(n => (n._id === editingItem._id ? response.data.news : n)));
     }
-   } else {
-          // Создание новости с поддержкой фото
-          const formDataToSend = new FormData();
-          formDataToSend.append('title', data.title);
-          formDataToSend.append('titleKk', data.titleKk || data.title);
-          formDataToSend.append('titleEn', data.titleEn || data.title);
-          formDataToSend.append('content', data.content);
-          formDataToSend.append('contentKk', data.contentKk || data.content);
-          formDataToSend.append('contentEn', data.contentEn || data.content);
-          formDataToSend.append('excerpt', data.excerpt || data.content?.substring(0, 150) || '');
-          formDataToSend.append('category', data.category || 'admission');
-          formDataToSend.append('status', data.status || 'draft');
-          formDataToSend.append('isPublished', data.status === 'published');
-          if (data.image) {
-            formDataToSend.append('image', data.image);
-          }
+  } else {
+    // Создание новости с поддержкой фото
+    const formDataToSend = new FormData();
+    formDataToSend.append('title', data.title);
+    formDataToSend.append('titleKk', data.titleKk || data.title);
+    formDataToSend.append('titleEn', data.titleEn || data.title);
+    formDataToSend.append('content', data.content);
+    formDataToSend.append('contentKk', data.contentKk || data.content);
+    formDataToSend.append('contentEn', data.contentEn || data.content);
+    formDataToSend.append('excerpt', data.excerpt || data.content?.substring(0, 150) || '');
+    formDataToSend.append('category', data.category || 'admission');
+    // Принудительно публикуем новость
+    formDataToSend.append('status', 'published');
+    formDataToSend.append('isPublished', 'true');
+    if (data.image) {
+      formDataToSend.append('image', data.image);
+    }
 
-          const response = await axios.post(
-            'https://zhezu.onrender.com/api/admin/news',
-            formDataToSend,
-            {
-              headers: {
-               Authorization: `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'multipart/form-data'
-              },
-            }
-          );
-          setNews([...news, response.data.news]);
-        }
-        break;
+    const response = await axios.post(
+      'https://zhezu.onrender.com/api/admin/news',
+      formDataToSend,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data'
+        },
+      }
+    );
+    setNews([...news, response.data.news]);
+  }
+  break;
+ 
 
       case 'question':
         if (editingItem) {
@@ -494,7 +498,7 @@ const handleSaveItem = async (type, data) => {
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Студент</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Балл теста</th>
+
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата подачи</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
             </tr>
@@ -535,11 +539,7 @@ const handleSaveItem = async (type, data) => {
                       <option value="rejected">Отклонена</option>
                     </select>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {application.testScore}/100
-                    </div>
-                  </td>
+                 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {formatDate(application.submittedAt)}
                   </td>

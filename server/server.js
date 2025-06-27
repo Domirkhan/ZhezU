@@ -452,7 +452,7 @@ const newsSchema = new mongoose.Schema({
   },
   isPublished: {
     type: Boolean,
-    default: false
+    default: true 
   },
   publishedAt: {
     type: Date
@@ -871,60 +871,28 @@ app.get('/api/admin/users', authenticateToken, requireAdmin, async (req, res) =>
   }
 });
 // Applications Routes
-app.post('/api/applications', authenticateToken, upload.fields([
-  { name: 'passport', maxCount: 1 },
-  { name: 'diploma', maxCount: 1 },
-  { name: 'photo', maxCount: 1 },
-  { name: 'medical', maxCount: 1 },
-  { name: 'additional', maxCount: 5 }
-]), async (req, res) => {
+// Applications Routes
+app.post('/api/applications', authenticateToken, async (req, res) => {
   try {
-    const applicationData = JSON.parse(req.body.applicationData);
-    
-    // Process uploaded files
-    const documents = {};
-    
-    if (req.files.passport) {
-      documents.passport = {
-        filename: req.files.passport[0].filename,
-        originalName: req.files.passport[0].originalname,
-        path: req.files.passport[0].path
-      };
-    }
-    
-    if (req.files.diploma) {
-      documents.diploma = {
-        filename: req.files.diploma[0].filename,
-        originalName: req.files.diploma[0].originalname,
-        path: req.files.diploma[0].path
-      };
-    }
-    
-    if (req.files.photo) {
-      documents.photo = {
-        filename: req.files.photo[0].filename,
-        originalName: req.files.photo[0].originalname,
-        path: req.files.photo[0].path
-      };
-    }
-    
-    if (req.files.medical) {
-      documents.medical = {
-        filename: req.files.medical[0].filename,
-        originalName: req.files.medical[0].originalname,
-        path: req.files.medical[0].path
-      };
-    }
-    
-    if (req.files.additional) {
-      documents.additional = req.files.additional.map(file => ({
-        filename: file.filename,
-        originalName: file.originalname,
-        path: file.path,
-        description: applicationData.additionalDescriptions?.[file.originalname] || ''
-      }));
+    // Поддержка как JSON, так и FormData (applicationData)
+    let applicationData = req.body;
+    if (req.body.applicationData) {
+      applicationData = JSON.parse(req.body.applicationData);
     }
 
+    // Проверка обязательных полей (можно расширить по необходимости)
+    if (
+      !applicationData.personalInfo ||
+      !applicationData.specialities ||
+      !applicationData.entResults
+    ) {
+      return res.status(400).json({ message: 'Не все обязательные поля заполнены' });
+    }
+
+    // Документы не требуются, сохраняем пустой объект
+    const documents = {};
+
+    // Создание заявки
     const application = new Application({
       userId: req.user.userId,
       ...applicationData,
@@ -932,10 +900,10 @@ app.post('/api/applications', authenticateToken, upload.fields([
     });
 
     await application.save();
-    
-    res.status(201).json({ 
-      message: 'Заявка создана успешно', 
-      applicationId: application._id 
+
+    res.status(201).json({
+      message: 'Заявка создана успешно',
+      applicationId: application._id
     });
   } catch (error) {
     console.error('Create application error:', error);
@@ -1101,7 +1069,10 @@ app.post('/api/admin/news', authenticateToken, requireAdmin, upload.single('imag
         path: req.file.path
       };
     }
-    
+    // Принудительно публикуем новость
+    newsData.status = 'published';
+    newsData.isPublished = true;
+    newsData.publishedAt = new Date();
     const news = new News({
       ...newsData,
       author: req.user.userId
@@ -1127,7 +1098,11 @@ app.put('/api/admin/news/:id', authenticateToken, requireAdmin, upload.single('i
         path: req.file.path
       };
     }
-    
+    // Принудительно публикуем новость
+    newsData.status = 'published';
+    newsData.isPublished = true;
+    newsData.publishedAt = new Date();
+
     const news = await News.findByIdAndUpdate(
       req.params.id,
       newsData,

@@ -28,7 +28,7 @@ import Modal from '../../components/Modal';
 import ApplicationModal from '../Applications/ApplicationModal';
 
 const AdminDashboard = ({ user, onLogout }) => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('applications');
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [editingItem, setEditingItem] = useState(null);
@@ -51,7 +51,6 @@ const AdminDashboard = ({ user, onLogout }) => {
   });
 // Конфиг для статусов
 const statusConfig = {
-  draft:   { label: 'Черновик', color: 'gray', icon: Clock },
   submitted: { label: 'Подана', color: 'blue', icon: Clock },
   under_review: { label: 'На рассмотрении', color: 'yellow', icon: Eye },
   accepted: { label: 'Принята', color: 'green', icon: CheckCircle },
@@ -479,7 +478,6 @@ const handleSaveItem = async (type, data) => {
         className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
       >
         <option value="all">Все статусы</option>
-        <option value="draft">Черновик</option>
         <option value="submitted">Подана</option>
         <option value="under_review">На рассмотрении</option>
         <option value="accepted">Принята</option>
@@ -528,7 +526,6 @@ const handleSaveItem = async (type, data) => {
                       onChange={e => handleStatusChange(application._id, e.target.value)}
                       className="border rounded px-2 py-1"
                     >
-                      <option value="draft">Черновик</option>
                       <option value="submitted">Подана</option>
                       <option value="under_review">На рассмотрении</option>
                       <option value="accepted">Принята</option>
@@ -687,13 +684,6 @@ const handleSaveItem = async (type, data) => {
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-3">
                       <Newspaper className="text-orange-600" size={20} />
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        article.status === 'published'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {article.status === 'published' ? 'Опубликовано' : 'Черновик'}
-                      </span>
                     </div>
                     <div className="flex space-x-2">
                       <button

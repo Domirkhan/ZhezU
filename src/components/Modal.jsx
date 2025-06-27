@@ -329,13 +329,6 @@ const Modal = ({ isOpen, onClose, title, type, data, onSave }) => {
                   <option value="announcements">Объявления</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Статус</label>
-                <select value={formData.status || 'draft'} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                  <option value="draft">Черновик</option>
-                  <option value="published">Опубликовано</option>
-                </select>
-              </div>
             </>
           )}
 

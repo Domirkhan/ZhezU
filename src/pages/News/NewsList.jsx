@@ -5,7 +5,7 @@ import { Calendar, Eye, Tag, ArrowRight } from "lucide-react";
 import axios from "axios";
 
 const NewsList = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -158,9 +158,7 @@ const NewsList = () => {
                   {article.image && (
                     <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
                       <img
-                        // Если ваши файлы реально лежат в uploads/documents, оставьте так.
-                        // Если просто в uploads, уберите /documents
-                        src={`/uploads/documents/${article.image.filename}`}
+                        src={`https://zhezu.onrender.com/uploads/documents/${article.image.filename}`}
                         alt={article.title}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -185,12 +183,29 @@ const NewsList = () => {
 
                   {/* Title */}
                   <h2 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
-                    {article.title}
+                    {(() => {
+                      const lang = i18n.language;
+                      if (lang === 'kk') return article.titleKk || article.title;
+                      if (lang === 'en') return article.titleEn || article.title;
+                      return article.title;
+                    })()}
                   </h2>
 
                   {/* Excerpt */}
-                  <p className="text-gray-600 mb-4 line-clamp-3">
-                    {article.excerpt}
+                  <p className="text-gray-600 mb-4" style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    wordBreak: 'break-word',
+                  }}>
+                    {(() => {
+                      const lang = i18n.language;
+                      if (lang === 'kk') return article.excerptKk || article.contentKk || article.excerpt || article.content;
+                      if (lang === 'en') return article.excerptEn || article.contentEn || article.excerpt || article.content;
+                      return article.excerpt || article.content;
+                    })()}
                   </p>
 
                   {/* Meta */}

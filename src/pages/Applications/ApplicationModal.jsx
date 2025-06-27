@@ -179,7 +179,9 @@ const ApplicationModal = ({ isOpen, onClose, application, statusConfig, onStatus
                       <p className="text-sm text-gray-600">Выбранные специальности</p>
                       <p className="font-medium text-gray-900">
                         {Array.isArray(application.specialities) && application.specialities.length > 0
-                          ? application.specialities.map((s, idx) => `${s.priority}. ${s.name}`).join(', ')
+                          ? application.specialities.map((s, idx) =>
+                              `${s.priority}. ${s.name || s.specialityId?.name || s.specialityId || '—'}`
+                            ).join(', ')
                           : application.specialty || '-'}
                       </p>
                     </div>

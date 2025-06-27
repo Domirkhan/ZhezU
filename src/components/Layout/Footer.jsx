@@ -43,7 +43,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-2 text-gray-300">
                 <Phone size={16} />
-                <span className="text-sm">{t('footerPhone')}</span>
+                <a href={`tel:${t('footerPhone').replace(/[^\d+]/g, '')}`} className="text-sm hover:underline text-gray-300">{t('footerPhone')}</a>
               </div>
               <div className="flex items-center space-x-2 text-gray-300">
                 <Mail size={16} />
@@ -56,16 +56,13 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('footerQuickLinks')}</h3>
             <div className="space-y-2">
-              <a href="#" className="block text-gray-300 hover:text-white transition-colors text-sm">
+              <a href="/programs" className="block text-gray-300 hover:text-white transition-colors text-sm">
                 {t('footerLinkPrograms')}
               </a>
-              <a href="#" className="block text-gray-300 hover:text-white transition-colors text-sm">
+              <a href="/admission" className="block text-gray-300 hover:text-white transition-colors text-sm">
                 {t('footerLinkAdmission')}
               </a>
-              <a href="#" className="block text-gray-300 hover:text-white transition-colors text-sm">
-                {t('footerLinkGrants')}
-              </a>
-              <a href="#" className="block text-gray-300 hover:text-white transition-colors text-sm">
+              <a href="/news" className="block text-gray-300 hover:text-white transition-colors text-sm">
                 {t('footerLinkNews')}
               </a>
             </div>

@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { Calendar, Eye, Tag, ArrowRight } from 'lucide-react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Calendar, Eye, Tag, ArrowRight } from "lucide-react";
+import axios from "axios";
 
 const NewsList = () => {
   const { t } = useTranslation();
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const categories = [
-    { id: 'all', name: t('newsCatAll') },
-    { id: 'admission', name: t('newsCatAdmission') },
-    { id: 'academic', name: t('newsCatAcademic') },
-    { id: 'events', name: t('newsCatEvents') },
-    { id: 'announcements', name: t('newsCatAnnouncements') }
+    { id: "all", name: t("newsCatAll") },
+    { id: "admission", name: t("newsCatAdmission") },
+    { id: "academic", name: t("newsCatAcademic") },
+    { id: "events", name: t("newsCatEvents") },
+    { id: "announcements", name: t("newsCatAnnouncements") },
   ];
 
   useEffect(() => {
@@ -30,15 +30,17 @@ const NewsList = () => {
       setLoading(true);
       const params = {
         page: currentPage,
-        limit: 12
+        limit: 12,
       };
 
-      if (selectedCategory !== 'all') {
+      if (selectedCategory !== "all") {
         params.category = selectedCategory;
       }
 
       // Важно: если фронт и бэк на разных портах, пропишите baseURL в axios или используйте полный путь
-      const response = await axios.get('https://zhezu.onrender.com/api/news', { params });
+      const response = await axios.get("https://zhezu.onrender.com/api/news", {
+        params,
+      });
       // Проверяем, что получили именно объект с массивом новостей
       if (response.data && Array.isArray(response.data.news)) {
         setNews(response.data.news);
@@ -50,46 +52,52 @@ const NewsList = () => {
     } catch (error) {
       setNews([]);
       setTotalPages(1);
-      console.error('Error fetching news:', error);
+      console.error("Error fetching news:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     const date = new Date(dateString);
-    if (isNaN(date)) return '';
-    return date.toLocaleDateString('ru-RU', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    if (isNaN(date)) return "";
+    return date.toLocaleDateString("ru-RU", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const getCategoryName = (category) => {
     switch (category) {
-      case 'all': return t('newsCatAll');
-      case 'admission': return t('newsCatAdmission');
-      case 'academic': return t('newsCatAcademic');
-      case 'events': return t('newsCatEvents');
-      case 'announcements': return t('newsCatAnnouncements');
-      default: return category;
+      case "all":
+        return t("newsCatAll");
+      case "admission":
+        return t("newsCatAdmission");
+      case "academic":
+        return t("newsCatAcademic");
+      case "events":
+        return t("newsCatEvents");
+      case "announcements":
+        return t("newsCatAnnouncements");
+      default:
+        return category;
     }
   };
 
   const getCategoryColor = (category) => {
     switch (category) {
-      case 'admission':
-        return 'bg-blue-100 text-blue-800';
-      case 'academic':
-        return 'bg-green-100 text-green-800';
-      case 'events':
-        return 'bg-purple-100 text-purple-800';
-      case 'announcements':
-        return 'bg-orange-100 text-orange-800';
+      case "admission":
+        return "bg-blue-100 text-blue-800";
+      case "academic":
+        return "bg-green-100 text-green-800";
+      case "events":
+        return "bg-purple-100 text-purple-800";
+      case "announcements":
+        return "bg-orange-100 text-orange-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -99,10 +107,10 @@ const NewsList = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            {t('newsPageTitle')}
+            {t("newsPageTitle")}
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {t('newsPageDesc')}
+            {t("newsPageDesc")}
           </p>
         </div>
 
@@ -118,8 +126,8 @@ const NewsList = () => {
                 }}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   selectedCategory === category.id
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                    ? "bg-primary-600 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 {category.name}
@@ -132,17 +140,20 @@ const NewsList = () => {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="text-gray-600 mt-4">{t('newsLoading')}</p>
+            <p className="text-gray-600 mt-4">{t("newsLoading")}</p>
           </div>
         ) : !Array.isArray(news) || news.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">{t('newsNotFound')}</p>
+            <p className="text-gray-600">{t("newsNotFound")}</p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
               {news.map((article) => (
-                <article key={article._id} className="card hover:shadow-lg transition-shadow">
+                <article
+                  key={article._id}
+                  className="card hover:shadow-lg transition-shadow"
+                >
                   {/* Image */}
                   {article.image && (
                     <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
@@ -153,7 +164,8 @@ const NewsList = () => {
                         alt={article.title}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.target.src = 'https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=600';
+                          e.target.src =
+                            "https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=600";
                         }}
                       />
                     </div>
@@ -161,7 +173,11 @@ const NewsList = () => {
 
                   {/* Category */}
                   <div className="mb-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(article.category)}`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(
+                        article.category
+                      )}`}
+                    >
                       <Tag className="w-3 h-3 mr-1" />
                       {getCategoryName(article.category)}
                     </span>
@@ -182,7 +198,9 @@ const NewsList = () => {
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
-                        <span>{formatDate(article.publishedAt || article.createdAt)}</span>
+                        <span>
+                          {formatDate(article.publishedAt || article.createdAt)}
+                        </span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Eye className="w-4 h-4" />
@@ -196,7 +214,7 @@ const NewsList = () => {
                     to={`/news/${article._id}`}
                     className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
                   >
-                    {t('newsReadMore')}
+                    {t("newsReadMore")}
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </Link>
                 </article>
@@ -208,33 +226,39 @@ const NewsList = () => {
               <div className="flex justify-center">
                 <nav className="flex items-center space-x-2">
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
                     disabled={currentPage === 1}
                     className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {t('newsPrev')}
+                    {t("newsPrev")}
                   </button>
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`px-3 py-2 text-sm font-medium rounded-md border ${
-                        currentPage === page
-                          ? 'bg-primary-600 text-white border-primary-600'
-                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-2 text-sm font-medium rounded-md border ${
+                          currentPage === page
+                            ? "bg-primary-600 text-white border-primary-600"
+                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
 
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                     disabled={currentPage === totalPages}
                     className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {t('newsNext')}
+                    {t("newsNext")}
                   </button>
                 </nav>
               </div>

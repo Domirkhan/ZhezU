@@ -34,10 +34,12 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [applications, setApplications] = useState([]);
-const [statusFilter, setStatusFilter] = useState('all');
-const [showApplicationModal, setShowApplicationModal] = useState(false);
-const [selectedApplication, setSelectedApplication] = useState(null);
-
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [specialties, setSpecialties] = useState([]);
+  const [news, setNews] = useState([]);
+  
   // Mock data - in real app, this would come from API
   const [stats, setStats] = useState({
     totalUsers: 1245,
@@ -107,19 +109,35 @@ const handleViewApplication = (application) => {
   setSelectedApplication(application);
   setShowApplicationModal(true);
 };
-  const [specialties, setSpecialties] = useState([
-    { id: 1, name: 'Информационные технологии', description: 'Разработка программного обеспечения, системное администрирование', studentsCount: 324, isActive: true },
-    { id: 2, name: 'Медицина', description: 'Лечебное дело, стоматология, фармацевтика', studentsCount: 892, isActive: true },
-    { id: 3, name: 'Инженерия', description: 'Машиностроение, электротехника, строительство', studentsCount: 567, isActive: true },
-    { id: 4, name: 'Экономика и финансы', description: 'Бухгалтерский учет, финансы, банковское дело', studentsCount: 445, isActive: true },
-  ]);
 
-  const [news, setNews] = useState([
-    { id: 1, title: 'Новая программа стипендий для IT-специальностей', content: 'Университет объявляет о запуске программы повышенных стипендий...', author: 'Администрация', date: '2024-01-15', status: 'published' },
-    { id: 2, title: 'Дни открытых дверей факультета медицины', content: 'Приглашаем всех желающих на дни открытых дверей...', author: 'Администрация', date: '2024-01-14', status: 'published' },
-    { id: 3, title: 'Международная олимпиада по программированию', content: 'Студенты нашего университета заняли призовые места...', author: 'Администрация', date: '2024-01-13', status: 'draft' },
-  ]);
+useEffect(() => {
+  fetchSpecialties();
+  fetchNews();
+}, []);
 
+const fetchSpecialties = async () => {
+  try {
+    const response = await axios.get('https://zhezu.onrender.com/api/specialities', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    setSpecialties(Array.isArray(response.data) ? response.data : []);
+  } catch (error) {
+    setSpecialties([]);
+    console.error('Ошибка при загрузке специальностей:', error);
+  }
+};
+const fetchNews = async () => {
+  try {
+    const response = await axios.get('https://zhezu.onrender.com/api/news', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    // API возвращает объект { news: [...], ... }
+    setNews(Array.isArray(response.data.news) ? response.data.news : []);
+  } catch (error) {
+    setNews([]);
+    console.error('Ошибка при загрузке новостей:', error);
+  }
+};
   const [testQuestions, setTestQuestions] = useState([
     {
       id: 1,
@@ -143,12 +161,25 @@ const handleViewApplication = (application) => {
     }
   ]);
 
-  const [users, setUsers] = useState([
-    { id: 1, fullName: 'Айдана Нурбекова', email: 'aidana@email.com', phoneNumber: '+7 707 123 4567', role: 'user', createdAt: '2024-01-10T10:00:00Z', lastLogin: '2024-01-15T14:30:00Z' },
-    { id: 2, fullName: 'Арман Казбеков', email: 'arman@email.com', phoneNumber: '+7 707 987 6543', role: 'user', createdAt: '2024-01-09T09:15:00Z', lastLogin: '2024-01-15T11:20:00Z' },
-    { id: 3, fullName: 'Диана Сагитова', email: 'diana@email.com', phoneNumber: '+7 707 555 1234', role: 'user', createdAt: '2024-01-08T16:45:00Z', lastLogin: '2024-01-14T20:10:00Z' },
-  ]);
+const [users, setUsers] = useState([]);
+useEffect(() => {
+  if (activeTab === 'users') {
+    fetchUsers();
+  }
+}, [activeTab]);
 
+const fetchUsers = async () => {
+  try {
+    const response = await axios.get('https://zhezu.onrender.com/api/admin/users', {
+     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    // Ожидается, что сервер вернет массив пользователей
+    setUsers(Array.isArray(response.data.users) ? response.data.users : []);
+  } catch (error) {
+    setUsers([]);
+    console.error('Ошибка при загрузке пользователей:', error);
+  }
+};
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
       year: 'numeric',

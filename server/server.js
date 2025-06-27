@@ -860,7 +860,16 @@ app.delete('/api/admin/specialities/:id', authenticateToken, requireAdmin, async
     res.status(500).json({ message: 'Внутренняя ошибка сервера' });
   }
 });
-
+app.get('/api/admin/users', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const users = await User.find({}, '-password -verificationCode').sort({ createdAt: -1 });
+    // Можно добавить фильтрацию/пагинацию по необходимости
+    res.json({ users });
+  } catch (error) {
+    console.error('Get admin users error:', error);
+    res.status(500).json({ message: 'Внутренняя ошибка сервера' });
+  }
+});
 // Applications Routes
 app.post('/api/applications', authenticateToken, upload.fields([
   { name: 'passport', maxCount: 1 },

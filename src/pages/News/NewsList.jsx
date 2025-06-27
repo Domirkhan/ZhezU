@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Calendar, Eye, Tag, ArrowRight } from "lucide-react";
 import axios from "axios";
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const NewsList = () => {
   const { t, i18n } = useTranslation();
   const [news, setNews] = useState([]);
@@ -158,7 +160,7 @@ const NewsList = () => {
                   {article.image && (
                     <div className="bg-gray-200 rounded-lg mb-4 overflow-hidden">
                       <img
-                        src={`https://zhezu.onrender.com/uploads/documents/${article.image.filename}`}
+                        src={`${BASE_URL}/uploads/documents/${article.image.filename}`}
                         alt={article.title}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -207,21 +209,11 @@ const NewsList = () => {
                   >
                     {(() => {
                       const lang = i18n.language;
-                      if (lang === "kk")
-                        return (
-                          article.excerptKk ||
-                          article.contentKk ||
-                          article.excerpt ||
-                          article.content
-                        );
-                      if (lang === "en")
-                        return (
-                          article.excerptEn ||
-                          article.contentEn ||
-                          article.excerpt ||
-                          article.content
-                        );
-                      return article.excerpt || article.content;
+                      let text = '';
+                      if (lang === "kk") text = article.contentKk || article.content;
+                      else if (lang === "en") text = article.contentEn || article.content;
+                      else text = article.content;
+                      return text ? text.substring(0, 150) + (text.length > 150 ? '...' : '') : '';
                     })()}
                   </p>
 

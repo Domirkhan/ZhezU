@@ -156,7 +156,7 @@ const NewsList = () => {
                 >
                   {/* Image */}
                   {article.image && (
-                    <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
+                    <div className="bg-gray-200 rounded-lg mb-4 overflow-hidden">
                       <img
                         src={`https://zhezu.onrender.com/uploads/documents/${article.image.filename}`}
                         alt={article.title}
@@ -185,25 +185,42 @@ const NewsList = () => {
                   <h2 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
                     {(() => {
                       const lang = i18n.language;
-                      if (lang === 'kk') return article.titleKk || article.title;
-                      if (lang === 'en') return article.titleEn || article.title;
+                      if (lang === "kk")
+                        return article.titleKk || article.title;
+                      if (lang === "en")
+                        return article.titleEn || article.title;
                       return article.title;
                     })()}
                   </h2>
 
                   {/* Excerpt */}
-                  <p className="text-gray-600 mb-4" style={{
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: 'vertical',
-                    wordBreak: 'break-word',
-                  }}>
+                  <p
+                    className="text-gray-600 mb-4"
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical",
+                      wordBreak: "break-word",
+                    }}
+                  >
                     {(() => {
                       const lang = i18n.language;
-                      if (lang === 'kk') return article.excerptKk || article.contentKk || article.excerpt || article.content;
-                      if (lang === 'en') return article.excerptEn || article.contentEn || article.excerpt || article.content;
+                      if (lang === "kk")
+                        return (
+                          article.excerptKk ||
+                          article.contentKk ||
+                          article.excerpt ||
+                          article.content
+                        );
+                      if (lang === "en")
+                        return (
+                          article.excerptEn ||
+                          article.contentEn ||
+                          article.excerpt ||
+                          article.content
+                        );
                       return article.excerpt || article.content;
                     })()}
                   </p>

@@ -270,53 +270,59 @@ const Modal = ({ isOpen, onClose, title, type, data, onSave }) => {
 
           {type === 'news' && (
             <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Заголовок новости
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title || ''}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Введите заголовок новости"
-                />
+              <div className="mb-4">
+                <div className="flex space-x-2 mb-2">
+                  <button type="button" className={`px-3 py-1 rounded-lg text-sm font-medium ${formData._langTab === 'ru' || !formData._langTab ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`} onClick={() => setFormData({ ...formData, _langTab: 'ru' })}>Русский</button>
+                  <button type="button" className={`px-3 py-1 rounded-lg text-sm font-medium ${formData._langTab === 'kk' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`} onClick={() => setFormData({ ...formData, _langTab: 'kk' })}>Қазақша</button>
+                  <button type="button" className={`px-3 py-1 rounded-lg text-sm font-medium ${formData._langTab === 'en' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`} onClick={() => setFormData({ ...formData, _langTab: 'en' })}>English</button>
+                </div>
+                {/* Русский */}
+                {(formData._langTab === 'ru' || !formData._langTab) && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Заголовок (RU)</label>
+                      <input type="text" required value={formData.title || ''} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Введите заголовок новости" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Содержание (RU)</label>
+                      <textarea required rows={6} value={formData.content || ''} onChange={e => setFormData({ ...formData, content: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Полный текст новости" />
+                    </div>
+                  </>
+                )}
+                {/* Қазақша */}
+                {formData._langTab === 'kk' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Тақырып (KZ)</label>
+                      <input type="text" required value={formData.titleKk || ''} onChange={e => setFormData({ ...formData, titleKk: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Жаңалықтың тақырыбы" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Мәтін (KZ)</label>
+                      <textarea required rows={6} value={formData.contentKk || ''} onChange={e => setFormData({ ...formData, contentKk: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Жаңалықтың толық мәтіні" />
+                    </div>
+                  </>
+                )}
+                {/* English */}
+                {formData._langTab === 'en' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Title (EN)</label>
+                      <input type="text" required value={formData.titleEn || ''} onChange={e => setFormData({ ...formData, titleEn: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="News title" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Content (EN)</label>
+                      <textarea required rows={6} value={formData.contentEn || ''} onChange={e => setFormData({ ...formData, contentEn: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Full news text" />
+                    </div>
+                  </>
+                )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Фото новости
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={e => setFormData({ ...formData, image: e.target.files[0] })}
-                  className="w-full"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Фото новости</label>
+                <input type="file" accept="image/*" onChange={e => setFormData({ ...formData, image: e.target.files[0] })} className="w-full" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Содержание
-                </label>
-                <textarea
-                  required
-                  rows={6}
-                  value={formData.content || ''}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Полный текст новости"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Категория
-                </label>
-                <select
-                  value={formData.category || 'admission'}
-                  onChange={e => setFormData({ ...formData, category: e.target.value })}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                >
+                <label className="block text-sm font-medium text-gray-700 mb-2">Категория</label>
+                <select value={formData.category || 'admission'} onChange={e => setFormData({ ...formData, category: e.target.value })} required className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                   <option value="admission">Поступление</option>
                   <option value="academic">Учёба</option>
                   <option value="events">События</option>
@@ -324,14 +330,8 @@ const Modal = ({ isOpen, onClose, title, type, data, onSave }) => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Статус
-                </label>
-                <select
-                  value={formData.status || 'draft'}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                >
+                <label className="block text-sm font-medium text-gray-700 mb-2">Статус</label>
+                <select value={formData.status || 'draft'} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                   <option value="draft">Черновик</option>
                   <option value="published">Опубликовано</option>
                 </select>

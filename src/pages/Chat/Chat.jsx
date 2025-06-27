@@ -2,8 +2,63 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Send, Bot, User, Loader } from "lucide-react";
 
+const PREDEFINED_ANSWERS = {
+  ru: [
+    {
+      variants: ["Какие специальности есть в ZhezU?", "Какие специальности есть в ЖеЗУ?", "Какие специальности есть в Zhezu?"],
+      answer: `В ZhezU представлены следующие специальности:\n\n<b>Кафедра «Педагогика, психология и филология»</b>\n• 6В01301 — Педагогика и методика начального образования\n• 6В01701 — Казахский язык и литература\n• 6В01702 — Иностранные языки\n• 6В01704 — Русский язык и литература\n\n<b>Кафедра «Физическая культура и изобразительное искусство»</b>\n• 6В01402 — Физическая культура и спорт\n• 6В01401 — Изобразительное искусство и черчение\n\n<b>Кафедра «Горное дело, металлургия и естествознание»</b>\n• 6В01504 — Математика и информатика\n• 6В01505 — Математика и физика\n• 6В01507 — Биология и химия\n• 6В07201 — Геология и разведка месторождений полезных ископаемых\n• 6В07203 — Горное дело\n• 6В07205 — Обогащение полезных ископаемых\n• 6В07206 — Металлургия\n• 6В07250 — Горная инженерия\n\n<b>Кафедра «История Казахстана, экономика и право»</b>\n• 6В04101 — Экономика\n\n<b>Кафедра «Электроэнергетика и охрана труда»</b>\n• 6В07104 — Электроэнергетика\n• 6В07101 — Автоматизация и управление\n• 6В11201 — Безопасность жизнедеятельности и защита окружающей среды\n\n<b>Кафедра «Технологические машины и строительство»</b>\n• 6В07103 — Технологические машины и оборудование\n• 6В07106 — Транспорт, транспортная техника и технологии\n• 6В07301 — Строительство`
+    },
+    {
+      variants: ["Контакты приемной комиссии", "Контакты приемной комиссии?"],
+      answer: `Приёмная комиссия ZhezU:\n\n<b>Адрес:</b> 100600, г. Жезказган, пр. Алашахана, 1б, Главный корпус, кабинет №108\n<b>Телефон:</b> +7 (7102) 410-461, +7 777 218 93 25\n<b>Ответственный секретарь:</b> Сапарбек Жанерке Ахановна`
+    },
+    {
+      variants: ["Когда подавать документы?", "Когда подавать документы"],
+      answer: `Подавать документы надо с 20 июня по 24 августа.\n\nДля поступления в ZhezU необходимы следующие документы:\n\n• Аттестат с приложением (школа) или диплом (колледж/университет)\n• Медицинская справка по форме №75-у\n• Копия удостоверения личности (3 шт.)\n• Сертификат ЕНТ\n• Скоросшиватель\n• Конверт\n• Файл\n\nПодача документов осуществляется в приёмную комиссию университета. Следите за сроками на официальном сайте.`
+    }
+  ],
+  kk: [
+    {
+      variants: ["ZhezU-да қандай мамандықтар бар?", "ZhezU-да қандай мамандықтар бар"],
+      answer: `ZhezU университетінде келесі мамандықтар бар:\n\n<b>«Педагогика, психология және филология» кафедрасы</b>\n• 6В01301 — Бастауышта оқытудың педагогикасы мен әдістемесі\n• 6В01701 — Қазақ тілі мен әдебиеті\n• 6В01702 — Шет тілдері\n• 6В01704 — Орыс тілі мен әдебиеті\n\n<b>«Дене шынықтыру және бейнелеу өнері» кафедрасы</b>\n• 6В01402 — Дене шынықтыру және спорт\n• 6В01401 — Бейнелеу өнері және сызу\n\n<b>«Тау-кен ісі, металлургия және жаратылыстану» кафедрасы</b>\n• 6В01504 — Математика және информатика\n• 6В01505 — Математика және физика\n• 6В01507 — Биология және химия\n• 6В07201 — Пайдалы қазбалар кен орындарын барлау және геология\n• 6В07203 — Тау-кен ісі\n• 6В07205 — Пайдалы қазбаларды байыту\n• 6В07206 — Металлургия\n• 6В07250 — Тау-кен инженериясы\n\n<b>«Қазақстан тарихы, экономика және құқық» кафедрасы</b>\n• 6В04101 — Экономика\n\n<b>«Электроэнергетика және еңбек қорғау» кафедрасы</b>\n• 6В07104 — Электроэнергетика\n• 6В07101 — Автоматтандыру және басқару\n• 6В11201 — Өмір тіршілігінің қауіпсіздігі және қоршаған ортаны қорғау\n\n<b>«Технологиялық машиналар және құрылыс» кафедрасы</b>\n• 6В07103 — Технологиялық машиналар мен жабдықтар\n• 6В07106 — Көлік, көлік техникасы және технологиялары\n• 6В07301 — Құрылыс`
+    },
+    {
+      variants: ["Қабылдау комиссиясының контактілері", "Қабылдау комиссиясының контактілері?"],
+      answer: `ZhezU қабылдау комиссиясы:\n\n<b>Мекенжайы:</b> 100600, Жезқазған қ., Алашахан даңғылы, 1б, Бас корпус, 108-кабинет\n<b>Телефон:</b> +7 (7102) 410-461, +7 777 218 93 25\n<b>Жауапты хатшы:</b> Сапарбек Жанерке Ахановна`
+    },
+    {
+      variants: ["Құжаттарды қашан тапсыру керек?", "Құжаттарды қашан тапсыру керек"],
+      answer: `Құжаттарды 20 маусымнан 24 тамызға дейін тапсыру керек.\n\nZhezU-ға түсу үшін келесі құжаттар қажет:\n\n• Аттестат пен қосымша (мектеп) немесе диплом (колледж/университет)\n• №75-у медициналық анықтама\n• Жеке куәліктің көшірмесі (3 дана)\n• ҰБТ сертификаты\n• Скоросшиватель\n• Конверт\n• Файл\n\nҚұжаттарды қабылдау комиссиясына тапсыру қажет. Мерзімдер туралы ресми сайттан қараңыз.`
+    }
+  ],
+  en: [
+    {
+      variants: ["What specialties are available at ZhezU?", "What specialties are available at Zhezu?", "What specialties are there at ZhezU?"],
+      answer: `ZhezU offers the following specialties:\n\n<b>Department of Pedagogy, Psychology and Philology</b>\n• 6B01301 — Pedagogy and Methods of Primary Education\n• 6B01701 — Kazakh Language and Literature\n• 6B01702 — Foreign Languages\n• 6B01704 — Russian Language and Literature\n\n<b>Department of Physical Education and Fine Arts</b>\n• 6B01402 — Physical Education and Sports\n• 6B01401 — Fine Arts and Drawing\n\n<b>Department of Mining, Metallurgy and Natural Sciences</b>\n• 6B01504 — Mathematics and Informatics\n• 6B01505 — Mathematics and Physics\n• 6B01507 — Biology and Chemistry\n• 6B07201 — Geology and Exploration of Mineral Deposits\n• 6B07203 — Mining\n• 6B07205 — Mineral Processing\n• 6B07206 — Metallurgy\n• 6B07250 — Mining Engineering\n\n<b>Department of History of Kazakhstan, Economics and Law</b>\n• 6B04101 — Economics\n\n<b>Department of Power Engineering and Labor Protection</b>\n• 6B07104 — Power Engineering\n• 6B07101 — Automation and Control\n• 6B11201 — Life Safety and Environmental Protection\n\n<b>Department of Technological Machines and Construction</b>\n• 6B07103 — Technological Machines and Equipment\n• 6B07106 — Transport, Transport Engineering and Technologies\n• 6B07301 — Construction`
+    },
+    {
+      variants: ["Admission office contacts", "Admission office contacts?"],
+      answer: `ZhezU Admission Office:\n\n<b>Address:</b> 100600, Zhezkazgan, Alashakhana Ave., 1b, Main building, office 108\n<b>Phone:</b> +7 (7102) 410-461, +7 777 218 93 25\n<b>Responsible secretary:</b> Saparbek Zhanerke Akhanovna`
+    },
+    {
+      variants: ["When to submit documents?", "When to submit documents"],
+      answer: `Documents must be submitted from June 20 to August 24.\n\nTo apply to ZhezU, you need the following documents:\n\n• Certificate with appendix (school) or diploma (college/university)\n• Medical certificate (form No. 75-u)\n• Copy of ID card (3 pcs)\n• UNT certificate\n• File folder\n• Envelope\n• File\n\nDocuments must be submitted to the admission office. Please check the official website for deadlines.`
+    }
+  ]
+};
+
+const getPredefinedAnswer = (question, lang) => {
+  const answers = PREDEFINED_ANSWERS[lang] || PREDEFINED_ANSWERS['ru'];
+  for (const item of answers) {
+    if (item.variants.some((q) => q.toLowerCase() === question.toLowerCase())) {
+      return item.answer;
+    }
+  }
+  return null;
+};
+
 const Chat = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -26,20 +81,34 @@ const Chat = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-
     if (!inputMessage.trim() || isLoading) return;
-
     const userMessage = {
       id: messages.length + 1,
       type: "user",
       content: inputMessage,
       timestamp: new Date(),
     };
-
     setMessages((prev) => [...prev, userMessage]);
     setInputMessage("");
     setIsLoading(true);
-
+    // Проверяем на заготовленный вопрос
+    const lang = i18n.language || 'ru';
+    const predefined = getPredefinedAnswer(userMessage.content, lang);
+    if (predefined) {
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length + 1,
+            type: "bot",
+            content: <span dangerouslySetInnerHTML={{__html: predefined}} />,
+            timestamp: new Date(),
+          },
+        ]);
+        setIsLoading(false);
+      }, 500);
+      return;
+    }
     try {
       // Отправляем историю сообщений на сервер
       const response = await fetch("https://zhezu.onrender.com/chat", {
@@ -96,7 +165,6 @@ const Chat = () => {
 
   const quickQuestions = [
     t("chatQuick1"),
-    t("chatQuick2"),
     t("chatQuick3"),
     t("chatQuick4"),
   ];

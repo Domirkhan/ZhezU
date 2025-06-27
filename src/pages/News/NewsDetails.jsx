@@ -1,11 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 const NewsDetails = () => {
   const { id } = useParams();
   const [news, setNews] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -14,7 +16,7 @@ const NewsDetails = () => {
           `https://zhezu.onrender.com/api/news/${id}`
         );
         setNews(response.data);
-      } catch (error) {
+      } catch {
         setNews(null);
       } finally {
         setLoading(false);
@@ -31,13 +33,25 @@ const NewsDetails = () => {
       {news.image && (
         <div className="mb-6 rounded-xl overflow-hidden">
           <img
-            src={`/uploads/documents/${news.image.filename}`}
-            alt={news.title}
+            src={`https://zhezu.onrender.com/uploads/documents/${news.image.filename}`}
+            alt={(() => {
+              const lang = i18n.language;
+              if (lang === 'kk') return news.titleKk || news.title;
+              if (lang === 'en') return news.titleEn || news.title;
+              return news.title;
+            })()}
             className="w-full object-cover max-h-96"
           />
         </div>
       )}
-      <h1 className="text-3xl font-bold mb-4">{news.title}</h1>
+      <h1 className="text-3xl font-bold mb-4">
+        {(() => {
+          const lang = i18n.language;
+          if (lang === 'kk') return news.titleKk || news.title;
+          if (lang === 'en') return news.titleEn || news.title;
+          return news.title;
+        })()}
+      </h1>
       <div className="text-gray-500 mb-2">
         {news.author?.fullName || "Админ"} |{" "}
         {new Date(news.publishedAt || news.createdAt).toLocaleDateString(
@@ -46,7 +60,12 @@ const NewsDetails = () => {
       </div>
       <div
         className="prose max-w-none"
-        dangerouslySetInnerHTML={{ __html: news.content }}
+        dangerouslySetInnerHTML={{ __html: (() => {
+          const lang = i18n.language;
+          if (lang === 'kk') return news.contentKk || news.content;
+          if (lang === 'en') return news.contentEn || news.content;
+          return news.content;
+        })() }}
       />
     </div>
   );

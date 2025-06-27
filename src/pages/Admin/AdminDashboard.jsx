@@ -191,7 +191,7 @@ const fetchUsers = async () => {
   };
 
   const tabs = [
-    { id: 'overview', name: 'Обзор', icon: TrendingUp },
+    
     { id: 'applications', name: 'Заявки', icon: FileText },
     { id: 'specialties', name: 'Специальности', icon: GraduationCap },
     { id: 'news', name: 'Новости', icon: Newspaper },
@@ -452,106 +452,7 @@ const handleSaveItem = async (type, data) => {
           </div>
         </div>
 
-        {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-              <StatCard
-                title="Пользователи"
-                value={stats.totalUsers}
-                icon={Users}
-                color="indigo"
-                trend={8}
-              />
-              <StatCard
-                title="Прохождений тестов"
-                value={stats.totalTests}
-                icon={FileText}
-                color="green"
-                trend={15}
-              />
-              <StatCard
-                title="Специальности"
-                value={stats.totalSpecialties}
-                icon={GraduationCap}
-                color="purple"
-              />
-              <StatCard
-                title="Новости"
-                value={stats.totalNews}
-                icon={Newspaper}
-                color="orange"
-              />
-             
-              <StatCard
-                title="Регистраций сегодня"
-                value={stats.todayRegistrations}
-                icon={Calendar}
-                color="pink"
-              />
-            </div>
-
-            {/* Recent Activities */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Последние регистрации
-                </h3>
-                <div className="space-y-4">
-                  {users.slice(0, 5).map((user) => (
-                    <div key={user.id} className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                        <span className="text-indigo-600 text-sm font-medium">
-                          {user.fullName.charAt(0)}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{user.fullName}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
-                      </div>
-                      <span className="text-xs text-gray-400">
-                        {formatDate(user.createdAt)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Популярные специальности
-                </h3>
-                <div className="space-y-4">
-                  {specialties
-                    .sort((a, b) => b.studentsCount - a.studentsCount)
-                    .slice(0, 5)
-                    .map((specialty) => (
-                      <div key={specialty.id} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <GraduationCap className="text-purple-600" size={20} />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {specialty.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {specialty.studentsCount} студентов
-                            </p>
-                          </div>
-                        </div>
-                        <div className="w-16 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-purple-600 h-2 rounded-full"
-                            style={{ width: `${(specialty.studentsCount / 1000) * 100}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      
 {activeTab === 'applications' && (
   <div className="space-y-6">
     <div className="flex justify-between items-center">
@@ -859,7 +760,7 @@ const handleSaveItem = async (type, data) => {
                   <p className="text-sm text-gray-600">Прохождений</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-purple-600">30</p>
+                  <p className="text-2xl font-bold text-purple-600">10</p>
                   <p className="text-sm text-gray-600">Мин. на тест</p>
                 </div>
               </div>
@@ -951,12 +852,8 @@ const handleSaveItem = async (type, data) => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Роль
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Последний вход
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Действия
-                      </th>
+                      
+                      
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -992,25 +889,8 @@ const handleSaveItem = async (type, data) => {
                             {user.role === 'admin' ? 'Администратор' : 'Пользователь'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(user.lastLogin)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button className="text-indigo-600 hover:text-indigo-900 transition-colors">
-                              <Eye size={16} />
-                            </button>
-                            <button className="text-gray-600 hover:text-gray-900 transition-colors">
-                              <Edit size={16} />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteItem('user', user.id)}
-                              className="text-red-600 hover:text-red-900 transition-colors"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
+                        
+                       
                       </tr>
                     ))}
                   </tbody>

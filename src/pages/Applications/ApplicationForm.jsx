@@ -68,7 +68,7 @@ const ApplicationForm = () => {
 
 const fetchSpecialities = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/specialities');
+    const response = await axios.get('https://zhezu.onrender.com/api/specialities');
     console.log('specialities response:', response.data);
     setSpecialities(Array.isArray(response.data) ? response.data : []);
   } catch (error) {

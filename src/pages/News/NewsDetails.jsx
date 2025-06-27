@@ -10,7 +10,7 @@ const NewsDetails = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await axios.get(`/api/news/${id}`);
+        const response = await axios.get(`https://zhezu.onrender.com/api/news/${id}`);
         setNews(response.data);
       } catch (error) {
         setNews(null);

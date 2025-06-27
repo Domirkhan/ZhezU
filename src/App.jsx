@@ -20,7 +20,7 @@ import NewsList from './pages/News/NewsList';
 import NewsDetails from './pages/News/NewsDetails';
 // Set axios base URL
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = 'https://zhezu.onrender.com';
 
 // Import i18n
 import './i18n/i18n';

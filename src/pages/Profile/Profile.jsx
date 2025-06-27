@@ -17,7 +17,7 @@ const Profile = () => {
 
 const fetchTestHistory = async () => {
   try {
-    const response = await axios.get('/api/test/history');
+    const response = await axios.get('https://zhezu.onrender.com/api/test/history');
     setTestHistory(Array.isArray(response.data) ? response.data : []);
   } catch (error) {
     setTestHistory([]);

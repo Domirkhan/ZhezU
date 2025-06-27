@@ -27,7 +27,7 @@ const MyApplications = () => {
 
   const fetchMyApplications = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/applications/my', {
+    const response = await axios.get('https://zhezu.onrender.com/api/applications/my', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     console.log('applications:', response.data);

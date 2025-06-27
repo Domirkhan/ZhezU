@@ -38,7 +38,7 @@ const NewsList = () => {
       }
 
       // Важно: если фронт и бэк на разных портах, пропишите baseURL в axios или используйте полный путь
-      const response = await axios.get('http://localhost:5000/api/news', { params });
+      const response = await axios.get('https://zhezu.onrender.com/api/news', { params });
       // Проверяем, что получили именно объект с массивом новостей
       if (response.data && Array.isArray(response.data.news)) {
         setNews(response.data.news);

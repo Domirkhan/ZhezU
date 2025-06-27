@@ -61,7 +61,7 @@ useEffect(() => {
 
 const fetchApplications = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/admin/applications', {
+    const response = await axios.get('https://zhezu.onrender.com/api/admin/applications', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
     console.log('admin applications:', response.data);
@@ -87,7 +87,7 @@ const handleStatusChange = async (applicationId, newStatus) => {
   try {
     // Отправляем запрос на сервер для смены статуса и отправки email
     await axios.put(
-      `/api/admin/applications/${applicationId}/status`,
+      `https://zhezu.onrender.com/api/admin/applications/${applicationId}/status`,
       { status: newStatus },
       { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
     );
@@ -237,7 +237,7 @@ const handleSaveItem = async (type, data) => {
   if (editingItem) {
     // Редактирование специальности
     const response = await axios.put(
-      `/api/admin/specialities/${editingItem._id || editingItem.id}`,
+      `https://zhezu.onrender.com/api/admin/specialities/${editingItem._id || editingItem.id}`,
       data,
       {
         headers: {
@@ -253,7 +253,7 @@ const handleSaveItem = async (type, data) => {
   } else {
     // Создание специальности
     const response = await axios.post(
-      '/api/admin/specialities',
+      'https://zhezu.onrender.com/api/admin/specialities',
       data,
       {
         headers: {
@@ -283,7 +283,7 @@ const handleSaveItem = async (type, data) => {
       formDataToSend.append('image', data.image);
 
       const response = await axios.put(
-        `/api/admin/news/${editingItem._id || editingItem.id}`,
+        `https://zhezu.onrender.com/api/admin/news/${editingItem._id || editingItem.id}`,
         formDataToSend,
         {
           headers: {
@@ -296,7 +296,7 @@ const handleSaveItem = async (type, data) => {
     } else {
       // Без смены фото — обычный JSON
       const response = await axios.put(
-        `/api/admin/news/${editingItem._id || editingItem.id}`,
+        `https://zhezu.onrender.com/api/admin/news/${editingItem._id || editingItem.id}`,
         {
           title: data.title,
           titleKk: data.titleKk || data.title,
@@ -335,7 +335,7 @@ const handleSaveItem = async (type, data) => {
           }
 
           const response = await axios.post(
-            '/api/admin/news',
+            'https://zhezu.onrender.com/api/admin/news',
             formDataToSend,
             {
               headers: {

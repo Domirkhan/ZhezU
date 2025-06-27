@@ -208,13 +208,23 @@ const Header = () => {
                   <Link
                     to="/profile"
                     onClick={() => setIsMenuOpen(false)}
-                    className="text-gray-700 hover:text-primary-600 px-4 py-2"
+                    className="btn-primary w-full text-center mb-2"
                   >
                     {t('profile')}
                   </Link>
+                  {user?.role === 'admin' && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="btn-primary w-full text-center mb-2"
+                    >
+                      {t('admin')}
+                    </Link>
+                  )}
                   <button
                     onClick={() => { handleLogout(); setIsMenuOpen(false); }}
-                    className="text-gray-700 hover:text-primary-600 px-4 py-2 text-left"
+                    className="btn-secondary w-full text-center mt-6"
+                    style={{ marginTop: '10px' }}
                   >
                     {t('logout')}
                   </button>

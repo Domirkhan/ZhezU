@@ -1,103 +1,104 @@
-import { useState, useRef, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Send, Bot, User, Loader } from 'lucide-react';
+import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { Send, Bot, User, Loader } from "lucide-react";
 
 const Chat = () => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState([
     {
       id: 1,
-      type: 'bot',
-      content: t('chatWelcome'),
-      timestamp: new Date()
-    }
+      type: "bot",
+      content: t("chatWelcome"),
+      timestamp: new Date(),
+    },
   ]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-const handleSendMessage = async (e) => {
-  e.preventDefault();
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
 
-  if (!inputMessage.trim() || isLoading) return;
+    if (!inputMessage.trim() || isLoading) return;
 
-  const userMessage = {
-    id: messages.length + 1,
-    type: 'user',
-    content: inputMessage,
-    timestamp: new Date()
-  };
-
-  setMessages(prev => [...prev, userMessage]);
-  setInputMessage('');
-  setIsLoading(true);
-
-  try {
-    // Отправляем историю сообщений на сервер
-    const response = await fetch('https://zhezu.onrender.com/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-        // Добавьте Authorization, если используете защищённый маршрут
-      },
-      body: JSON.stringify({
-        messages: [
-          // Можно отправлять только последние 10 сообщений для контекста
-          ...messages.map(m => ({
-            role: m.type === 'user' ? 'user' : 'assistant',
-            content: m.content
-          })),
-          { role: 'user', content: inputMessage }
-        ]
-      })
-    });
-
-    const data = await response.json();
-    const botContent = data.choices?.[0]?.message?.content || 'Ошибка ответа от GPT';
-
-    const botMessage = {
-      id: messages.length + 2,
-      type: 'bot',
-      content: botContent,
-      timestamp: new Date()
+    const userMessage = {
+      id: messages.length + 1,
+      type: "user",
+      content: inputMessage,
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, botMessage]);
-  } catch {
-    setMessages(prev => [
-      ...prev,
-      {
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
+    setIsLoading(true);
+
+    try {
+      // Отправляем историю сообщений на сервер
+      const response = await fetch("https://zhezu.onrender.com/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Добавьте Authorization, если используете защищённый маршрут
+        },
+        body: JSON.stringify({
+          messages: [
+            // Можно отправлять только последние 10 сообщений для контекста
+            ...messages.map((m) => ({
+              role: m.type === "user" ? "user" : "assistant",
+              content: m.content,
+            })),
+            { role: "user", content: inputMessage },
+          ],
+        }),
+      });
+
+      const data = await response.json();
+      const botContent =
+        data.choices?.[0]?.message?.content || "Ошибка ответа от GPT";
+
+      const botMessage = {
         id: messages.length + 2,
-        type: 'bot',
-        content: 'Ошибка соединения с сервером',
-        timestamp: new Date()
-      }
-    ]);
-  } finally {
-    setIsLoading(false);
-  }
-};
+        type: "bot",
+        content: botContent,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: messages.length + 2,
+          type: "bot",
+          content: "Ошибка соединения с сервером",
+          timestamp: new Date(),
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString('ru-RU', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString("ru-RU", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const quickQuestions = [
-    t('chatQuick1'),
-    t('chatQuick2'),
-    t('chatQuick3'),
-    t('chatQuick4')
+    t("chatQuick1"),
+    t("chatQuick2"),
+    t("chatQuick3"),
+    t("chatQuick4"),
   ];
 
   const handleQuickQuestion = (question) => {
@@ -113,16 +114,14 @@ const handleSendMessage = async (e) => {
             <Bot className="text-white" size={32} />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {t('chatTitle')}
+            {t("chatTitle")}
           </h1>
-          <p className="text-gray-600">
-            {t('chatSubtitle')}
-          </p>
+          <p className="text-gray-600">{t("chatSubtitle")}</p>
         </div>
 
         {/* Quick Questions */}
         <div className="mb-6">
-          <p className="text-sm text-gray-600 mb-3">{t('chatPopular')}</p>
+          <p className="text-sm text-gray-600 mb-3">{t("chatPopular")}</p>
           <div className="flex flex-wrap gap-2">
             {quickQuestions.map((question, index) => (
               <button
@@ -143,17 +142,29 @@ const handleSendMessage = async (e) => {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${
+                  message.type === "user" ? "justify-end" : "justify-start"
+                }`}
               >
-                <div className={`flex max-w-xs md:max-w-md lg:max-w-lg ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div
+                  className={`flex max-w-xs md:max-w-md lg:max-w-lg ${
+                    message.type === "user" ? "flex-row-reverse" : "flex-row"
+                  }`}
+                >
                   {/* Avatar */}
-                  <div className={`flex-shrink-0 ${message.type === 'user' ? 'ml-3' : 'mr-3'}`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      message.type === 'user' 
-                        ? 'bg-primary-600' 
-                        : 'bg-secondary-600'
-                    }`}>
-                      {message.type === 'user' ? (
+                  <div
+                    className={`flex-shrink-0 ${
+                      message.type === "user" ? "ml-3" : "mr-3"
+                    }`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        message.type === "user"
+                          ? "bg-primary-600"
+                          : "bg-secondary-600"
+                      }`}
+                    >
+                      {message.type === "user" ? (
                         <User className="text-white" size={16} />
                       ) : (
                         <Bot className="text-white" size={16} />
@@ -162,17 +173,23 @@ const handleSendMessage = async (e) => {
                   </div>
 
                   {/* Message Bubble */}
-                  <div className={`rounded-lg px-4 py-2 ${
-                    message.type === 'user'
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-900'
-                  }`}>
+                  <div
+                    className={`rounded-lg px-4 py-2 ${
+                      message.type === "user"
+                        ? "bg-primary-600 text-white"
+                        : "bg-gray-100 text-gray-900"
+                    }`}
+                  >
                     <div className="whitespace-pre-wrap text-sm md:text-base">
                       {message.content}
                     </div>
-                    <div className={`text-xs mt-1 ${
-                      message.type === 'user' ? 'text-primary-100' : 'text-gray-500'
-                    }`}>
+                    <div
+                      className={`text-xs mt-1 ${
+                        message.type === "user"
+                          ? "text-primary-100"
+                          : "text-gray-500"
+                      }`}
+                    >
                       {formatTime(message.timestamp)}
                     </div>
                   </div>
@@ -189,14 +206,17 @@ const handleSendMessage = async (e) => {
                   </div>
                   <div className="bg-gray-100 rounded-lg px-4 py-2">
                     <div className="flex items-center space-x-1">
-                      <Loader className="animate-spin text-gray-500" size={16} />
+                      <Loader
+                        className="animate-spin text-gray-500"
+                        size={16}
+                      />
                       <span className="text-gray-600 text-sm">Печатает...</span>
                     </div>
                   </div>
                 </div>
               </div>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -207,7 +227,7 @@ const handleSendMessage = async (e) => {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder={t('chatPlaceholder')}
+                placeholder={t("chatPlaceholder")}
                 className="flex-1 input-field"
                 disabled={isLoading}
               />
@@ -224,9 +244,7 @@ const handleSendMessage = async (e) => {
 
         {/* Info */}
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
-            {t('chatFooter')}
-          </p>
+          <p className="text-sm text-gray-500">{t("chatFooter")}</p>
         </div>
       </div>
     </div>

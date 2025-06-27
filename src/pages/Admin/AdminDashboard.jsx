@@ -710,7 +710,7 @@ const handleSaveItem = async (type, data) => {
                   
                   <div className="flex justify-between items-center text-sm text-gray-500">
                    <span>Автор: {article.author?.fullName || 'Админ'}</span>
-                    <span>{formatDate(article.date)}</span>
+                    <span>{formatDate(article.publishedAt || article.createdAt) || 'Дата не указана'}</span>
                   </div>
                 </div>
               ))}

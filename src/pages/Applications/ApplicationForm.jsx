@@ -18,7 +18,6 @@ const ApplicationForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [specialities, setSpecialities] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     personalInfo: {
@@ -98,102 +97,85 @@ const ApplicationForm = () => {
     }
   };
 
-  const validateStep = (step) => {
-    const newErrors = {};
-
-    switch (step) {
-      case 1:
-        if (!formData.personalInfo.iin) newErrors.iin = t("iinRequired");
-        if (!formData.personalInfo.birthDate)
-          newErrors.birthDate = t("birthDateRequired");
-        if (!formData.personalInfo.gender)
-          newErrors.gender = t("genderRequired");
-        if (!formData.personalInfo.nationality)
-          newErrors.nationality = t("nationalityRequired");
-        if (!formData.personalInfo.address)
-          newErrors.address = t("addressRequired");
-        if (!formData.personalInfo.parentName)
-          newErrors.parentName = t("parentNameRequired");
-        if (!formData.personalInfo.parentPhone)
-          newErrors.parentPhone = t("parentPhoneRequired");
-        break;
-
-      case 2:
-        if (formData.specialities.length === 0) {
-          newErrors.specialities = t("specialityRequired");
-        }
-        break;
-
-      case 3:
-        if (!formData.entResults.totalScore) {
-          newErrors.totalScore = t("entTotalScoreRequired");
-        }
-        formData.entResults.subjects.forEach((subject, index) => {
-          if (!subject.score) {
-            newErrors[`subject_${index}`] = t("entSubjectScoreRequired", {
-              subject: subject.name,
-            });
-          }
-        });
-        break;
-      default:
-        break;
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  // Валидация отключена, все поля не обязательные
+  const validateStep = () => true;
 
   const handleNext = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 3));
-    }
+    setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
 
   const handlePrevious = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handleSubmit = async () => {
-    if (!validateStep(3)) return;
+const handleSubmit = async () => {
+  setLoading(true);
 
-    setLoading(true);
+  try {
+    const submitData = {
+      personalInfo: { ...formData.personalInfo },
+      specialities: formData.specialities.map((s, idx) => ({
+        specialityId: s.specialityId,
+        priority: idx + 1,
+        name: s.name,
+      })),
+      entResults: {
+        totalScore: formData.entResults.totalScore
+          ? Number(formData.entResults.totalScore)
+          : 0,
+        subjects: formData.entResults.subjects
+          .filter(subj => subj.score !== "")
+          .map(subj => ({
+            name: subj.name,
+            score: Number(subj.score),
+          })),
+      },
+    };
 
-    try {
-      const submitData = {
-        personalInfo: formData.personalInfo,
-        specialities: formData.specialities,
-        entResults: formData.entResults,
-      };
-
-      // Отправляем как FormData, чтобы сервер корректно принял (и с токеном)
-      const formDataToSend = new FormData();
-      formDataToSend.append("applicationData", JSON.stringify(submitData));
-
-      const token = localStorage.getItem("token");
-
-      const response = await axios.post(
-        "https://zhezu.onrender.com/api/applications",
-        formDataToSend,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data.applicationId) {
-        navigate("/applications/success", {
-          state: { applicationId: response.data.applicationId },
-        });
-      }
-    } catch (error) {
-      alert("Ошибка при подаче заявки. Попробуйте еще раз.");
-    } finally {
+    if (
+      !submitData.personalInfo ||
+      !submitData.specialities.length ||
+      !submitData.entResults
+    ) {
+      alert("Заполните хотя бы одну специальность и личные данные.");
       setLoading(false);
+      return;
     }
-  };
+
+    const token = localStorage.getItem("token");
+
+    const response = await axios.post(
+      "https://zhezu.onrender.com/api/applications",
+      submitData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.data.applicationId) {
+      navigate("/applications/success", {
+        state: { applicationId: response.data.applicationId },
+      });
+    } else if (response.data.message) {
+      alert(response.data.message);
+    }
+  } catch (error) {
+    if (
+      error.response &&
+      error.response.data &&
+      error.response.data.message
+    ) {
+      alert(error.response.data.message);
+    } else {
+      alert("Ошибка при подаче заявки. Попробуйте еще раз.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-[80vh] bg-gray-50 py-4 sm:py-8">
@@ -278,14 +260,9 @@ const ApplicationForm = () => {
                     onChange={(e) =>
                       handleInputChange("personalInfo", "iin", e.target.value)
                     }
-                    className={`input-field ${
-                      errors.iin ? "border-red-300" : ""
-                    }`}
+                    className="input-field"
                     placeholder={t("iinPlaceholder")}
                   />
-                  {errors.iin && (
-                    <p className="text-red-600 text-sm mt-1">{errors.iin}</p>
-                  )}
                 </div>
 
                 <div>
@@ -302,15 +279,8 @@ const ApplicationForm = () => {
                         e.target.value
                       )
                     }
-                    className={`input-field ${
-                      errors.birthDate ? "border-red-300" : ""
-                    }`}
+                    className="input-field"
                   />
-                  {errors.birthDate && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.birthDate}
-                    </p>
-                  )}
                 </div>
 
                 <div>
@@ -326,17 +296,12 @@ const ApplicationForm = () => {
                         e.target.value
                       )
                     }
-                    className={`input-field ${
-                      errors.gender ? "border-red-300" : ""
-                    }`}
+                    className="input-field"
                   >
                     <option value="">{t("genderSelect")}</option>
                     <option value="male">{t("male")}</option>
                     <option value="female">{t("female")}</option>
                   </select>
-                  {errors.gender && (
-                    <p className="text-red-600 text-sm mt-1">{errors.gender}</p>
-                  )}
                 </div>
 
                 <div>
@@ -353,16 +318,9 @@ const ApplicationForm = () => {
                         e.target.value
                       )
                     }
-                    className={`input-field ${
-                      errors.nationality ? "border-red-300" : ""
-                    }`}
+                    className="input-field"
                     placeholder={t("nationalityPlaceholder")}
                   />
-                  {errors.nationality && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.nationality}
-                    </p>
-                  )}
                 </div>
 
                 <div className="md:col-span-2">
@@ -378,17 +336,10 @@ const ApplicationForm = () => {
                         e.target.value
                       )
                     }
-                    className={`input-field ${
-                      errors.address ? "border-red-300" : ""
-                    }`}
+                    className="input-field"
                     rows="3"
                     placeholder={t("addressPlaceholder")}
                   />
-                  {errors.address && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.address}
-                    </p>
-                  )}
                 </div>
 
                 <div>
@@ -405,16 +356,9 @@ const ApplicationForm = () => {
                         e.target.value
                       )
                     }
-                    className={`input-field ${
-                      errors.parentName ? "border-red-300" : ""
-                    }`}
+                    className="input-field"
                     placeholder={t("parentNamePlaceholder")}
                   />
-                  {errors.parentName && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.parentName}
-                    </p>
-                  )}
                 </div>
 
                 <div>
@@ -431,16 +375,9 @@ const ApplicationForm = () => {
                         e.target.value
                       )
                     }
-                    className={`input-field ${
-                      errors.parentPhone ? "border-red-300" : ""
-                    }`}
+                    className="input-field"
                     placeholder={t("parentPhonePlaceholder")}
                   />
-                  {errors.parentPhone && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.parentPhone}
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
@@ -459,19 +396,6 @@ const ApplicationForm = () => {
                   })}
                 </span>
               </div>
-
-              {errors.specialities && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex">
-                    <AlertCircle className="h-5 w-5 text-red-400" />
-                    <div className="ml-3">
-                      <p className="text-sm text-red-800">
-                        {errors.specialities}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
                 {(Array.isArray(specialities) ? specialities : []).map(
@@ -583,16 +507,9 @@ const ApplicationForm = () => {
                         e.target.value
                       )
                     }
-                    className={`input-field ${
-                      errors.totalScore ? "border-red-300" : ""
-                    }`}
+                    className="input-field"
                     placeholder={t("entTotalScorePlaceholder")}
                   />
-                  {errors.totalScore && (
-                    <p className="text-red-600 text-sm mt-1">
-                      {errors.totalScore}
-                    </p>
-                  )}
                 </div>
 
                 {formData.entResults.subjects.map((subject, index) => (
@@ -616,16 +533,9 @@ const ApplicationForm = () => {
                           },
                         }));
                       }}
-                      className={`input-field ${
-                        errors[`subject_${index}`] ? "border-red-300" : ""
-                      }`}
+                      className="input-field"
                       placeholder={t("entSubjectScorePlaceholder")}
                     />
-                    {errors[`subject_${index}`] && (
-                      <p className="text-red-600 text-sm mt-1">
-                        {errors[`subject_${index}`]}
-                      </p>
-                    )}
                   </div>
                 ))}
               </div>

@@ -335,34 +335,6 @@ const applicationSchema = new mongoose.Schema({
       required: true
     }
   },
-  documents: {
-    passport: {
-      filename: String,
-      originalName: String,
-      path: String
-    },
-    diploma: {
-      filename: String,
-      originalName: String,
-      path: String
-    },
-    photo: {
-      filename: String,
-      originalName: String,
-      path: String
-    },
-    medical: {
-      filename: String,
-      originalName: String,
-      path: String
-    },
-    additional: [{
-      filename: String,
-      originalName: String,
-      path: String,
-      description: String
-    }]
-  },
   entResults: {
     totalScore: Number,
     subjects: [{
@@ -871,16 +843,13 @@ app.get('/api/admin/users', authenticateToken, requireAdmin, async (req, res) =>
   }
 });
 // Applications Routes
-// Applications Routes
 app.post('/api/applications', authenticateToken, async (req, res) => {
   try {
-    // Поддержка как JSON, так и FormData (applicationData)
     let applicationData = req.body;
     if (req.body.applicationData) {
       applicationData = JSON.parse(req.body.applicationData);
     }
 
-    // Проверка обязательных полей (можно расширить по необходимости)
     if (
       !applicationData.personalInfo ||
       !applicationData.specialities ||
@@ -889,14 +858,12 @@ app.post('/api/applications', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Не все обязательные поля заполнены' });
     }
 
-    // Документы не требуются, сохраняем пустой объект
-    const documents = {};
+    // УДАЛЕНО: const documents = {};
 
-    // Создание заявки
+    // Создание заявки без documents
     const application = new Application({
       userId: req.user.userId,
-      ...applicationData,
-      documents
+      ...applicationData
     });
 
     await application.save();

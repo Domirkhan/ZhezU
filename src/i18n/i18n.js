@@ -123,7 +123,7 @@ const resources = {
       footerLinkAdmission: 'Қабылдау комиссиясы',
       footerLinkGrants: 'Гранттар мен стипендиялар',
       footerLinkNews: 'Университет жаңалықтары',
-      footerCopyright: '© 2024 Талапкер ZhezU. Барлық құқықтар қорғалған.',
+      footerCopyright: '© 2025 Талапкер ZhezU. Барлық құқықтар қорғалған.',
       footerMadeFor: 'ZhezU талапкерлеріне арналған',
 
       // Test instructions and questions
@@ -614,7 +614,7 @@ const resources = {
       footerLinkAdmission: 'Приемная комиссия',
       footerLinkGrants: 'Гранты и стипендии',
       footerLinkNews: 'Новости университета',
-      footerCopyright: '© 2024 Талапкер ZhezU. Все права защищены.',
+      footerCopyright: '© 2025 Талапкер ZhezU. Все права защищены.',
       footerMadeFor: 'Создано для абитуриентов ZhezU',
 
       // Test instructions and questions
@@ -1097,7 +1097,7 @@ const resources = {
       footerLinkAdmission: 'Admission Office',
       footerLinkGrants: 'Grants and Scholarships',
       footerLinkNews: 'University News',
-      footerCopyright: '© 2024 Talapker ZhezU. All rights reserved.',
+      footerCopyright: '© 2025 Talapker ZhezU. All rights reserved.',
       footerMadeFor: 'Made for ZhezU applicants',
 
       // Test instructions and questions
